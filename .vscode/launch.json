@@ -18,7 +18,7 @@
       "type": "cppdbg",
       "request": "launch",
       "program": "${workspaceFolder}/install/lib/${input:package}/${input:program}",
-      "args": [],
+      "args": ["./examples/SampleCANLog.txt"],
       "preLaunchTask": "build",
       "stopAtEntry": true,
       "cwd": "${workspaceFolder}",
@@ -38,13 +38,13 @@
       "id": "package",
       "type": "promptString",
       "description": "Package name",
-      "default": "examples_rclcpp_minimal_publisher"
+      "default": "roscan_pkg"
     },
     {
       "id": "program",
       "type": "promptString",
       "description": "Program name",
-      "default": "publisher_member_function"
+      "default": "roscan_node"
     }
   ]
 }

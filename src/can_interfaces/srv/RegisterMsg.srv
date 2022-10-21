@@ -1,0 +1,7 @@
+uint8 channel
+uint32 pgn
+uint32 pgnmask
+uint64 mask
+uint64 match
+---
+int32 handle

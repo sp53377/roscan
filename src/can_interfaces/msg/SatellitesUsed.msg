@@ -1,0 +1,4 @@
+uint32 satellites_mask
+float64 latitude_ex_deg
+float64 longitude_ex_deg
+float32 altitude_ex_mm

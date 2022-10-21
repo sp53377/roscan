@@ -1,0 +1,5 @@
+float32 cos_roll_angle_rad
+float32 roll_angle_deg
+float32 yaw_rate_dps
+float32 rtk_distance_km
+float32 altitude_error_mm

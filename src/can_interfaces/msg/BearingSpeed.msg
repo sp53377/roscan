@@ -1,0 +1,2 @@
+float32 bearing_deg
+float32 speed_kph
