@@ -64,7 +64,7 @@ namespace sc
    {
       addr_t Source;
       addr_t Destination;
-      bus_t Bus;
+      bus_t Bus;	
       pgn_t Pgn;
       uint32_t Length;
       int64_t Timestamp;

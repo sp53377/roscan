@@ -8,6 +8,7 @@
 #include <iomanip>
 #include <stdint.h>
 #include <sstream>
+#include "CANTypes.h"
 
 namespace sc
 {
@@ -25,10 +26,7 @@ struct MessageInstance_t
   sc::CanMessage_t Msg;
 };
 
-template<typename T>
-CanMessage_t ToCanMessage(
-  const typename T::cpptype & in, int8_t channel,
-  int8_t destinationAddr = 0xFF)
+template<typename T> CanMessage_t ToCanMessage(const typename T::cpptype & in, int8_t channel, int8_t destinationAddr = 0xFF)
 {
   CanMessage_t msg;
   auto can = T::cantype::ToCAN(in);
@@ -40,7 +38,23 @@ CanMessage_t ToCanMessage(
   return msg;
 }
 
-inline std::string ToString(const CanMessage_t & msg, const double & timestamp = 0.0)
+static inline CANMsg ToCANMsgType(const CanMessage_t& in)
+{
+  CANMsg out;
+  out.Source = static_cast<sc::addr_t>(in.FrameId & 0xFF);
+  out.Destination = sc::NULL_ADDRESS;
+  out.Bus = in.Channel;
+  out.Pgn = static_cast<sc::pgn_t>((in.FrameId>>8) & 0xFFFF);
+  out.Length = in.Length;
+  out.Timestamp = 0;//TODO Get Timestamp
+  out.Priority = static_cast<uint8_t>((in.FrameId>>26) & 0x7);
+  out.SourceDeviceID = out.Source;//TODO Enumerate CAN Name Table
+  out.DestinationDeviceID = sc::INVALID_NODE;
+  out.Data = const_cast<uint8_t*>(in.Bytes);
+  return out;
+}
+
+static inline std::string ToString(const CanMessage_t & msg, const double & timestamp = 0.0)
 {
   std::stringstream ss;
   ss << "ch:" << std::setfill('0') << std::setw(2) << (int) msg.Channel <<

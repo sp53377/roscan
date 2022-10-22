@@ -42,12 +42,12 @@ uint8 SS_RESERVED2 = 13
 uint8 SS_ERROR =14
 uint8 SS_NOT_AVAILABLE = 15
 
-float32 heading
+float32 heading_deg
 uint8 navigation_mode
 uint8 navigation_locked
-float32 horizontal_error_estimate
-int32 activation_delta
+float32 horizontal_error_estimate_cm
+int32 activation_delta_sec
 uint8 sequence
 uint8 decode
-float32 horizontal_error_estimate_extended_precision
+float32 horizontal_error_estimate_extended_precision_mm
 uint8 solution_status
