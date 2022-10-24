@@ -1,0 +1,73 @@
+///////////////////////////////////////////////////////////////////////////////
+// Copyright Deere & Company. For more information,
+// please see COPYRIGHT file in root of source repository.
+///////////////////////////////////////////////////////////////////////////////
+
+#pragma once
+
+#include "GpsModel.h"
+#include <GpsService/GpsServiceMessages.hpp>
+#include "rclcpp/rclcpp.hpp"
+#include <CommonCore/CommonTypes.h>
+#include <map>
+
+namespace gps
+{
+   class GpsServiceROS;
+   class GpsService
+   {
+   public:
+      explicit GpsService(std::shared_ptr<rclcpp::Node> & node);
+      virtual ~GpsService();
+
+      GpsService(const GpsService&) = delete;
+      GpsService& operator=(const GpsService&) = delete;
+
+      void GpsDevicesReq(const hash_t& responseTopic);
+
+      GpsModel& FindModel(sc::node_t sourceNode);
+
+      template<typename T>
+      void Handle(sc::node_t sourceNode, const T& event, const int64_t& timestamp)
+      {
+         FindModel(sourceNode).Handle(event, timestamp);
+      }
+
+      void HandleEpochReceived(const int64_t& timestamp);
+
+      //This is for handling non-GPS messages in all GPS models
+      template<typename T>
+      void HandleGlobal(const T& event, const int64_t& timestamp)
+      {
+         for(auto& pair:Devices)
+         {
+            pair.second.Handle(event, timestamp);
+         }
+      }
+
+      void PublishGpsEpoch(const gps::GpsEpoch& epoch)
+      {
+	EpochPublisher->publish(bridge::GpsEpoch::ToROS(epoch));
+      }
+
+      void PublishGpsEx(const gps::GpsEx& ex)
+      {
+	ExPublisher->publish(bridge::GpsEx::ToROS(ex));
+      }
+
+      void PublishGpsDevice(const gps::GpsDevice& device)
+      {
+	DevicePublisher->publish(bridge::GpsDevice::ToROS(device));
+      }
+
+   private:
+      typedef std::map<sc::node_t, GpsModel> ModelMap;
+      std::shared_ptr<rclcpp::Node> & Node;
+      GpsServiceROS* CAN;
+      ModelMap Devices;
+      GpsModel NullModel;
+      rclcpp::Publisher<bridge::GpsEpoch::rostype>::SharedPtr EpochPublisher;
+      rclcpp::Publisher<bridge::GpsEx::rostype>::SharedPtr ExPublisher;
+      rclcpp::Publisher<bridge::GpsDevice::rostype>::SharedPtr DevicePublisher;
+   };
+}

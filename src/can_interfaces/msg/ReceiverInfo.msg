@@ -15,6 +15,8 @@ uint8 RV_RESERVED9 = 13
 uint8 RV_ERROR = 14
 uint8 RV_NOT_AVAILABLE = 15
 
+can_interfaces/CanData can_data
+
 uint16 license_days
 uint8 hardware_version
 uint8 software_version

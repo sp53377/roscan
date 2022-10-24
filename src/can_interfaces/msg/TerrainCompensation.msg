@@ -25,6 +25,8 @@ uint8 TCAS_CALIBRATING = 13
 uint8 TCAS_ERROR = 14
 uint8 TCAS_NOT_AVAILABLE = 15
 
+can_interfaces/CanData can_data
+
 uint8 tc_mode
 uint8 tc_accuracy
 uint8 direction

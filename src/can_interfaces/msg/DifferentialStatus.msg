@@ -46,6 +46,8 @@ uint16 AT_CAPABLE = 0x4154
 uint16 AT_ACTIVE = 0x4750
 uint16 AT_NOT_AVAILABLE = 0x0000
 
+can_interfaces/CanData can_data
+
 uint8 diff_locked
 uint8 augmentation_type
 float32 signal_to_noise_ratio

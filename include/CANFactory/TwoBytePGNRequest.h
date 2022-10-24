@@ -32,22 +32,22 @@ namespace sc
       inline TwoBytePGNRequest FromCAN(const sc::CANMsg& msg)
       {
          const CANTwoBytePGNRequest& in = sc::ToMsg<CANTwoBytePGNRequest>(msg);
-         return TwoBytePGNRequest{
-            .RequestedPGN =  static_cast<sc::pgn_t>(in.RequestedPGN),
-            .Cmd1 = in.Cmd1,
-            .Cmd2 = in.Cmd2
-         };
+         TwoBytePGNRequest out;
+         out.RequestedPGN =  static_cast<sc::pgn_t>(in.RequestedPGN),
+         out.Cmd1 = in.Cmd1;
+         out.Cmd2 = in.Cmd2;
+         return out;
       }
 
       inline CANTwoBytePGNRequest ToCAN(const TwoBytePGNRequest& in)
       {
-         return CANTwoBytePGNRequest {
-            .CmdBytes = cc::ToCMD16<CANTwoBytePGNRequest>(),
-            .RequestedPGN = static_cast<uint32_t>(in.RequestedPGN),
-            .Cmd1 = in.Cmd1,
-            .Cmd2 = in.Cmd2,
-            .Reserved1 = 0xFF
-         };
+         CANTwoBytePGNRequest out;
+         out.CmdBytes = cc::ToCMD16<CANTwoBytePGNRequest>();
+         out.RequestedPGN = static_cast<uint32_t>(in.RequestedPGN);
+         out.Cmd1 = in.Cmd1;
+         out.Cmd2 = in.Cmd2;
+         out.Reserved1 = 0xFF;
+         return out;
       }
    }
    __attribute__((packed));

@@ -40,7 +40,7 @@ bool CanPlayer::ProcessMsg()
   return isValid;
 }
 
-bool CanPlayer::ProcessLog(bool& isValidOut, sc::MessageInstance_t& messageOut)
+bool CanPlayer::ProcessLog(bool& isValidOut, MessageInstance_t& messageOut)
 {
   bool more = false;
   std::string str;
@@ -59,7 +59,7 @@ bool CanPlayer::ProcessLog(bool& isValidOut, sc::MessageInstance_t& messageOut)
   return more;
 }
 
-bool CanPlayer::Step(bool& isValidOut, sc::MessageInstance_t& messageOut)
+bool CanPlayer::Step(bool& isValidOut, MessageInstance_t& messageOut)
 {
   bool more = More;
   More = ProcessLog(isValidOut, messageOut);

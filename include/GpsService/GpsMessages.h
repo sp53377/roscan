@@ -91,22 +91,22 @@ namespace gps
 
    enum ESolutionStatus
    {
-      SS_OutOfRange = 0,
-      SS_NoFailure = 1,
-      SS_NotEnoughGPSMeasurementsToInitialize = 2,
-      SS_NoInitialPosition =3,
-      SS_InProgress =4,
-      SS_NotEnoughGPSMeasurementsToContinude =5,
-      SS_LowPDOP =6,
-      SS_NoVelocitySolution =7,
-      SS_UpdateTooLarge = 8,
-      SS_HeightVelocityLimitsExceeded =9,
-      SS_DisabledOrNotAuthorized = 10,
-      SS_MissingPVT = 11,
-      SS_Reserved1 = 12,
-      SS_Reserved2 = 13,
-      SS_Error =14,
-      SS_NotAvailable = 15
+      SST_OutOfRange = 0,
+      SST_NoFailure = 1,
+      SST_NotEnoughGPSMeasurementsToInitialize = 2,
+      SST_NoInitialPosition =3,
+      SST_InProgress =4,
+      SST_NotEnoughGPSMeasurementsToContinude =5,
+      SST_LowPDOP =6,
+      SST_NoVelocitySolution =7,
+      SST_UpdateTooLarge = 8,
+      SST_HeightVelocityLimitsExceeded =9,
+      SST_DisabledOrNotAuthorized = 10,
+      SST_MissingPVT = 11,
+      SST_Reserved1 = 12,
+      SST_Reserved2 = 13,
+      SST_Error =14,
+      SST_NotAvailable = 15
    };
 
    ///////////////////////////////////////////
@@ -840,7 +840,7 @@ namespace gps
       ECorrect Sequence { CO_NotAvaialble };
       ECorrect Decode { CO_NotAvaialble };
       mm32_t HorizontalErrorEstimateExtendedPrecision { 0.0 };
-      ESolutionStatus SolutionStatus { SS_NotAvailable };
+      ESolutionStatus SolutionStatus { SST_NotAvailable };
    };
 
    struct CANHeadingMode
@@ -903,6 +903,146 @@ namespace gps
 
    }__attribute__((packed));
    ASSERT_EIGHT(CANHeadingMode);
+
+   //////////////////////////////////////////////////////////////
+   ///Class 3 Messages
+   //////////////////////////////////////////////////////////////
+
+   enum ESpeedSource //A.30.4
+   {
+      SPD_Wheel = 0,
+      SPD_Ground = 1,
+      SPD_Gps = 2,
+      SPD_Blended = 3,
+      SPD_Simulated = 4,
+      SPD_Reserved1 = 5,
+      SPD_Reserved2 = 6,
+      SPD_NotAvailable = 7
+   };
+
+
+   enum ELimitStatus //A.19.11
+   {
+      LS_NotLimited = 0x00,
+      LS_OperatorLimited = 0x01,
+      LS_LimitedHigh = 0x02,
+      LS_LimitedLow = 0x03,
+      LS_Error = 0x06,
+      LS_NotAvailable = 0x07
+   };
+
+      //B.28.1
+   ///@todo: verify if the initialzation values are reasonable
+   struct MachineSelectedSpeed
+   {
+      mps_t Speed = 0.f;
+      m_t Distance = 0.f;
+      uint8_t ExitCode = 0;
+      EDirection Direction = D_Forward;
+      ESpeedSource SpeedSource = SPD_NotAvailable;
+      ELimitStatus SpeedLimitStatus = LS_NotAvailable;
+      sc::addr_t Source = sc::NULL_ADDRESS;
+   };
+
+   struct CANMachineSelectedSpeed
+   {
+      enum { PGN = 0xF022 };
+      enum { PRIORITY = 3 };
+
+      uint16_t Speed : 16;
+      uint32_t Distance : 32;
+      uint8_t ExitCode : 6;
+      uint8_t Reserved1 : 2;
+      uint8_t Direction : 2;
+      uint8_t SpeedSource : 3;
+      uint8_t SpeedLimitStatus : 3;
+
+      static MachineSelectedSpeed FromCAN(const sc::CANMsg& msg)
+      {
+	 const auto& in = sc::ToMsg<CANMachineSelectedSpeed>(msg);
+
+         MachineSelectedSpeed out;
+         out.Speed = cc::Scaled(in.Speed, 0.001f);
+         out.Distance = cc::Scaled(in.Distance, 0.001f);
+         out.ExitCode = in.ExitCode;
+         out.Direction = in.Direction == D_Error ? D_NotAvailable : static_cast<EDirection>(in.Direction);
+         out.SpeedSource = static_cast<ESpeedSource>(in.SpeedSource);
+         out.SpeedLimitStatus = static_cast<ELimitStatus>(in.SpeedLimitStatus);
+         out.Source = msg.Source;
+         return out;
+      }
+
+      static CANMachineSelectedSpeed ToCAN(const MachineSelectedSpeed& in)
+      {
+         CANMachineSelectedSpeed out;
+         out.Speed = cc::Unscaled<uint16_t>(in.Speed, 0.001f);
+         out.Distance = cc::Unscaled<uint32_t>(in.Distance, 0.001f);
+         out.ExitCode = in.ExitCode;
+         out.Reserved1 = 0b11;
+	 out.Direction = static_cast<uint8_t>(in.Direction);
+	 out.SpeedSource = static_cast<uint8_t>(in.SpeedSource);
+	 out.SpeedLimitStatus = static_cast<uint8_t>(in.SpeedLimitStatus);
+         return out;
+      }
+
+   }__attribute__((packed));
+   ASSERT_EIGHT(CANMachineSelectedSpeed);
+
+   //B.3
+   struct WheelBasedSpeedAndDistance
+   {
+      mps_t Speed = 0.0f;//A.8
+      m_t Distance = 0.0f;//A.9 0.001 m per bit
+      min_t MaximumPowerTime = 0;//A.12
+      EDirection MachineDirection = D_NotAvailable;//A.10
+      EOnOff KeySwitch = OO_NotAvailable;
+      EEnable StartStop = EN_NotAvailable;//A.25.2
+      EDirection OperatorDirection = D_NotAvailable;//A.31
+   };
+
+   struct CANWheelBasedSpeedAndDistance
+   {
+      enum { PGN = 0xFE48 };
+      enum { PRIORITY = 3 };
+
+      uint16_t Speed : 16;
+      uint32_t Distance : 32;
+      uint8_t MaximumPowerTime : 8;
+      uint8_t MachineDirection : 2;
+      uint8_t KeySwitch : 2;
+      uint8_t StartStop : 2;
+      uint8_t OperatorDirection : 2;
+
+      static WheelBasedSpeedAndDistance FromCAN(const sc::CANMsg& msg)
+      {
+	 const auto& in = sc::ToMsg<CANWheelBasedSpeedAndDistance>(msg);
+         WheelBasedSpeedAndDistance out;
+
+         out.Speed = cc::Scaled(in.Speed, 0.001f);
+         out.Distance = cc::Scaled(in.Distance, 0.001f);
+         out.MaximumPowerTime = static_cast<min_t>(in.MaximumPowerTime);
+         out.MachineDirection = static_cast<EDirection>(in.MachineDirection);
+         out.KeySwitch = static_cast<EOnOff>(in.KeySwitch);
+         out.StartStop = static_cast<EEnable>(in.StartStop);
+         out.OperatorDirection = static_cast<EDirection>(in.OperatorDirection);
+         return out;
+      }
+
+      static CANWheelBasedSpeedAndDistance ToCAN(const WheelBasedSpeedAndDistance& in)
+      {
+         CANWheelBasedSpeedAndDistance out;
+         out.Speed = cc::Unscaled<uint16_t>(in.Speed, 0.001f);
+         out.Distance = cc::Unscaled<uint32_t>(in.Distance, 0.001f);
+         out.MaximumPowerTime = static_cast<uint8_t>(in.MaximumPowerTime);
+         out.MachineDirection = static_cast<uint8_t>(in.MachineDirection);
+         out.KeySwitch = static_cast<uint8_t>(in.KeySwitch);
+         out.StartStop = static_cast<uint8_t>(in.StartStop);
+         out.OperatorDirection = static_cast<uint8_t>(in.OperatorDirection);
+         return out;
+      }
+
+   }__attribute__((packed));
+   ASSERT_EIGHT(CANWheelBasedSpeedAndDistance);
 
    //////////////////////////////////////////////////////////////
    ///Datum

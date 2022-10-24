@@ -1,3 +1,5 @@
+can_interfaces/CanData can_data
+
 float32 second
 int8 minute
 int8 hour

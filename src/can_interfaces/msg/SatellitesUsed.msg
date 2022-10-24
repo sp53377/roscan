@@ -1,3 +1,5 @@
+can_interfaces/CanData can_data
+
 uint32 satellites_mask
 float64 latitude_ex_deg
 float64 longitude_ex_deg

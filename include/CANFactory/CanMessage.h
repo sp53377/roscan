@@ -17,13 +17,8 @@ struct CanMessage_t
   int8_t Channel = -1;
   uint32_t FrameId = 0;
   int8_t Length = -1;
+  int64_t Timestamp = 0;
   uint8_t Bytes[8];
-};
-
-struct MessageInstance_t
-{
-  double Timestamp = 0.0;
-  sc::CanMessage_t Msg;
 };
 
 template<typename T> CanMessage_t ToCanMessage(const typename T::cpptype & in, int8_t channel, int8_t destinationAddr = 0xFF)

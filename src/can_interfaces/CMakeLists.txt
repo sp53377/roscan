@@ -22,8 +22,13 @@ find_package(rosidl_default_generators REQUIRED)
 rosidl_generate_interfaces(${PROJECT_NAME}
   "srv/RegisterMsg.srv"
   "msg/BearingSpeed.msg"
+  "msg/CanData.msg"
   "msg/DirectionSpeed.msg"
+  "msg/GpsDevice.msg"
+  "msg/GpsEpoch.msg"
+  "msg/GpsEx.msg"
   "msg/HeadingMode.msg"
+  "msg/MachineSelectedSpeed.msg"
   "msg/ReceiverInfo.msg"
   "msg/SatellitesUsed.msg"
   "msg/TimeDate.msg"
@@ -33,6 +38,7 @@ rosidl_generate_interfaces(${PROJECT_NAME}
   "msg/RollYawRate.msg"
   "msg/TerrainCompensation.msg"
   "msg/VehiclePosition.msg"
+  "msg/WheelBasedSpeedAndDistance.msg"
 )
 
 ament_package()

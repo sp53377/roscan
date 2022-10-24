@@ -5,6 +5,7 @@
 #include <thread>
 
 using namespace boost::interprocess;
+using namespace std::chrono;
 
 CanNode::CanNode(ICanSource & source, std::shared_ptr<rclcpp::Node> & node)
 : Node(node),
@@ -41,12 +42,14 @@ void CanNode::WaitForConnect()
 {
   do {
     try {
+      //message_queue::remove("canbus");
+      //Queue = std::make_shared<message_queue>(create_only, "canbus", 1000, sizeof(sc::CanMessage_t));
       Queue = std::make_shared<message_queue>(open_only, "canbus");
     } catch (const std::exception & e) {
       std::cout << "Couldn't connect to canbus queue retrying..." << std::endl;
       std::cerr << e.what() << '\n';
+      std::this_thread::sleep_for(std::chrono::milliseconds(500));
     }
-    std::this_thread::sleep_for(std::chrono::seconds(2));
     std::cout << "Connected..." << std::endl;
   } while (!Queue);
 }
@@ -75,7 +78,9 @@ bool CanNode::HasSubscription(const sc::CanMessage_t & msg) const
 void CanNode::Publish(const sc::CanMessage_t & msg)
 {
   if (HasSubscription(msg)) {
-    if (!Queue->try_send(&msg, sizeof(sc::CanMessage_t), 0)) {
+    sc::CanMessage_t timestampedMsg = msg;
+    timestampedMsg.Timestamp = duration_cast<milliseconds>(system_clock::now().time_since_epoch()).count();
+    if (!Queue->try_send(&timestampedMsg, sizeof(sc::CanMessage_t), 0)) {
       std::cout << "Send Failed" << std::endl;
     }
   }
@@ -85,7 +90,7 @@ bool CanNode::Step()
 {
   bool more = false;
   bool isValid = false;
-  sc::MessageInstance_t msg;
+  MessageInstance_t msg;
   if (Source.Step(isValid, msg)) {
     more = true;
     if (isValid) {

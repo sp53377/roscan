@@ -51,7 +51,20 @@ namespace sc
       std::string TLA;
    };
 
-   int operator==(const IsoName& rhs, const IsoName& lhs);
+   static inline int operator==(const IsoName& rhs, const IsoName& lhs)
+   {
+	return 
+      lhs.Identity == rhs.Identity &&
+      lhs.ManufacturerCode == rhs.ManufacturerCode &&
+      lhs.ECUInstance == rhs.ECUInstance &&
+      lhs.FunctionInstance == rhs.FunctionInstance &&
+      lhs.Function == rhs.Function &&
+      lhs.Reserved == rhs.Reserved &&
+      lhs.VehicleSystem == rhs.VehicleSystem &&
+      lhs.VehicleSystemInstance == rhs.VehicleSystemInstance &&
+      lhs.IndustryGroup == rhs.IndustryGroup &&
+      lhs.ArbitrationCapable == rhs.ArbitrationCapable;
+   }
 
    enum { GLOBAL_ADDRESS = 0xFF};
    enum { NULL_ADDRESS = 0xFE};

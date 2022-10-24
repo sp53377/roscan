@@ -1,3 +1,5 @@
+can_interfaces/CanData can_data
+
 float32 cos_roll_angle_rad
 float32 roll_angle_deg
 float32 yaw_rate_dps

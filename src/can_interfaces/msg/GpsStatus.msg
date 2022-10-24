@@ -20,6 +20,8 @@ uint8 CS_RESERVED11 = 13
 uint8 CS_ERROR = 14
 uint8 CS_NOT_AVAILABLE = 15
 
+can_interfaces/CanData can_data
+
 uint8 mode
 uint8 state
 uint8 velocity_solution_satellites

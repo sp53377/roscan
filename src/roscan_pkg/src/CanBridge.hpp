@@ -51,6 +51,9 @@ private:
 	auto publisher = Node->create_publisher<typename T::rostype>(T::topic, 10);//TODO What QoS do we need?
 	return [publisher](const sc::CanMessage_t& msg){
 		auto rosMsg = T::ToROS(T::cantype::FromCAN(sc::ToCANMsgType(msg)));
+		rosMsg.can_data.source = msg.FrameId & 0xFF;
+		rosMsg.can_data.timestamp = msg.Timestamp;
+		std::cout << T::topic << std::endl;
 		publisher->publish(rosMsg);
 	};
   }
