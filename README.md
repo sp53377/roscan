@@ -1,95 +1,87 @@
-# VSCode ROS2 Workspace Template
+# ROS2 Workspace with CAN Log Playback and Gps Service
 
-This template will get you set up using ROS2 with VSCode as your IDE.
-
-See [how I develop with vscode and ros2](https://www.allisonthackston.com/articles/vscode_docker_ros2.html) for a more in-depth look on how to use this workspace.
+This workspace contains:
+* A CAN Player Package/Node (canplay_pkg/canplay_node)
+* A CAN to ROS2 Bridge Package/Node (roscan_pkg/roscan_node)
+* A GPSService example that publishes GPS Epochs (gps_service_pkg/gps_service_node)
+* A CAN Interfaces package that defines ROS2-Types for messages
 
 ## Features
 
-### Style
+The following features are included:
 
-ROS2-approved formatters are included in the IDE.  
+* CAN Player can read in and playback CAN log files with approximate timings
+* ROSCAN bridge can register for CAN messages and will convert them into ROS2 topics
+* GPS Service aggregates a collection of GPS and machine messages into single GPS epoch ROS2 topics
 
-* **c++** uncrustify; config from `ament_uncrustify`
-* **python** autopep8; vscode settings consistent with the [style guide](https://index.ros.org/doc/ros2/Contributing/Code-Style-Language-Versions/)
+## Architecture
 
-### Tasks
+The following sequence shows how messages flow throught this system
 
-There are many pre-defined tasks, see [`.vscode/tasks.json`](.vscode/tasks.json) for a complete listing.  Feel free to adjust them to suit your needs.  
+![Architecture](components-roscan.png)
 
-Take a look at [how I develop using tasks](https://www.allisonthackston.com/articles/vscode_tasks.html) for an idea on how I use tasks in my development.
+1. CAN Player
+   1. Read Log File Line
+   2. Parse into CAN Message
+   3. If CAN message is registered (see RegisterMsg.srv)
+      1. Publish CAN message into boost Message Queue
+2. ROSCAN
+   1. Register a set of CAN messages
+      1. Sends RegisterMsg.srv req/resp to CAN Player
+   2. Try receive CAN message from boost Message Queue
+      1. Find Registered Subscription Masks
+      2. Call Registered Parsing Lambda
+         1. Cast bytes into CANMessage Can-Type Struct
+         2. Convert CAN-Type into CPP-Type (internal C++ struct) for the message
+         3. Convert CPP-Type into ROS-Type
+         4. Publish ROS-Type on topic
+   3. Spins the ROSCAN node
+3. GPS Service
+   1. Subscribe to Set of GPS Related bridged ROS2 messages
+   2. On GPS Message
+      1. Convert ROS-Type into CPP-Type
+      2. Forwards CPP-Type message to GPS Model class for handling
+   3. Once a GPS Model has enough messages to compose a GPS Epoch
+      1. Convert GpsEpoch CPP-Type into ROS-Type
+      2. Publish GpsEpoch on topic
 
-### Debugging
+### Definitions
 
-This template sets up debugging for python files and gdb for cpp programs.  See [`.vscode/launch.json`](.vscode/launch.json) for configuration details.
+`CPP-Type` - A C/C++ Struct that describes the native types for a message with Scaled floating point values and enumerated fields
 
-### Continuous Integration
+`CAN-Type` - A Bit-Packed C/C++ Struct made of of unsigned integer bit-fields typically packed into an 8-byte message and used to "Cast" a raw CAN message into unsigned data Provides methods to go to & from CPP-Types
 
-The template also comes with basic continuous integration set up. See [`.github/workflows/ros.yaml`](/.github/workflows/ros.yaml).
+`ROS-Type` - A ROS2 Message type that was compiled using ROS2 IDL
 
-To remove a linter just delete it's name from this line:
+`Bridge-Struct` - A Struct type with methods to convert between ROS-Type and CPP-Types along with a topic name
 
-```yaml
-      matrix:
-          linter: [cppcheck, cpplint, uncrustify, lint_cmake, xmllint, flake8, pep257]
-```
+## Adding CAN Messages
 
-## How to use this template
+Adding boilerplate for extending the ROSCAN bridge with new messages
 
-### Prerequisites
+1. Add a CAN-Type struct to `.../roscan/include/GpsService/GpsMessages.h`
+2. Add a CPP-Type struct to `.../roscan/include/GpsService/GpsMessages.h`
+3. Add a ROS-Type .msg to `.../roscan/src/can_interfaces/msg`
+4. Add a Bridge-Struct to `.../roscan/include/GpsService/GpsServiceMessages.hpp`
+5. Register the Bridge-Struct in ROSCAN `.../roscan/src/roscan_pkg/src/roscan_node.cpp`
+6. Subscribe to the Bridge-Struct in GPS Service `.../roscan/src/gps_service_pkg/src/GpsServiceROS.cpp`
 
-You should already have Docker and VSCode with the remote containers plugin installed on your system.
+## Prerequisites
+
+You need Docker and VSCode with the remote containers plugin installed
 
 * [docker](https://docs.docker.com/engine/install/)
 * [vscode](https://code.visualstudio.com/)
 * [vscode remote containers plugin](https://marketplace.visualstudio.com/items?itemName=ms-vscode-remote.remote-containers)
 
-### Get the template
+## Get the template
 
-Click on "use this template"
+This workspace is based on a Docker container that I found here:
+![Project Template] https://github.com/athackst/vscode_ros2_workspace/tree/humble
 
-![template_use](https://user-images.githubusercontent.com/6098197/91331899-43f23b80-e780-11ea-92c8-b4665ce126f1.png)
+## Testing the Nodes
 
-### Create your repository
-
-On the next dialog, name the repository you would like to start and decide if you want all of the branches, or just the latest LTS: Foxy.
-
-![template_new](https://user-images.githubusercontent.com/6098197/91332035-713ee980-e780-11ea-81d3-13b170f568b0.png)
-
-Github will then create a new repository with the contents of this one in your account.  It grabs the latest changes as "initial commit".
-
-### Clone your repo
-
-Now you can clone your repo as normal
-
-![template_download](https://user-images.githubusercontent.com/6098197/91332342-e4e0f680-e780-11ea-9525-49b0afa0e4bb.png)
-
-### Open it in vscode
-
-Now that you've cloned your repo onto your computer, you can open it in VSCode (File->Open Folder). 
-
-When you open it for the first time, you should see a little popup that asks you if you would like to open it in a container.  Say yes!
-
-![template_vscode](https://user-images.githubusercontent.com/6098197/91332551-36898100-e781-11ea-9080-729964373719.png)
-
-If you don't see the pop-up, click on the little green square in the bottom left corner, which should bring up the container dialog
-
-![template_vscode_bottom](https://user-images.githubusercontent.com/6098197/91332638-5d47b780-e781-11ea-9fb6-4d134dbfc464.png)
-
-In the dialog, select "Remote Containers: Reopen in container"
-
-VSCode will build the dockerfile inside of `.devcontainer` for you.  If you open a terminal inside VSCode (Terminal->New Terminal), you should see that your username has been changed to `ros`, and the bottom left green corner should say "Dev Container"
-
-![template_container](https://user-images.githubusercontent.com/6098197/91332895-adbf1500-e781-11ea-8afc-7a22a5340d4a.png)
-
-
-### Update the template with your code
-
-1. Specify the repositories you want to include in your workspace in `src/ros2.repos` or delete `src/ros2.repos` and develop directly within the workspace.
-2. If you are using a `ros2.repos` file, import the contents `Terminal->Run Task..->import from workspace file`
-2. Install dependencies `Terminal->Run Task..->install dependencies`
-3. (optional) Adjust scripts to your liking.  These scripts are used both within tasks and CI.
-   1. `setup.sh` The setup commands for your code.  Default to import workspace and install dependencies.
-   2. `build.sh` The build commands for your code.  Default to `--merge-install` and `--symlink-install`
-   3. `test.sh` The test commands for your code.
-4. Develop!
+1. Run the roscan_node `canrun.sh`
+2. Run the gps_service_node `gpsrun.sh`
+3. Run the can player `playerrun.sh`
+4. Watch gps epochs with `echo.sh GpsEpoch`
