@@ -58,7 +58,6 @@ private:
 		auto rosMsg = T::ToROS(T::cantype::FromCAN(sc::ToCANMsgType(msg)));
 		rosMsg.can_data.source = msg.FrameId & 0xFF;
 		rosMsg.can_data.timestamp = msg.Timestamp;
-		std::cout << T::topic << std::endl;
 		publisher->publish(rosMsg);
 	};
   }

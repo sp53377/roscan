@@ -20,9 +20,12 @@ GpsServiceROS::~GpsServiceROS()
 
 sc::CANDevice GpsServiceROS::GetDevice(sc::node_t node) const
 {
-	(void)node;
-  return sc::CANDevice{};
   //TODO Support ISOName table
+   sc::CANDevice device;
+   device.Node = node;
+   device.Address = node;
+   device.Bus = 2;
+   return device;
   //return Node.FindDevice(node);
 }
 

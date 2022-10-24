@@ -130,5 +130,6 @@ namespace gps
       EActive LowSpeedCapable = AC_NotAvailable;
       sc::addr_t Source = sc::NULL_ADDRESS;
       uint32_t SerialNumber = INVALID_SERIAL_NUMBER;
+      int64_t Timestamp = 0ll;
    };
 }

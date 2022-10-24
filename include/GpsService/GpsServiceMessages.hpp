@@ -654,7 +654,7 @@ struct GpsEx
   {
     rostype out;
     out.can_data.source = in.Source;
-    out.can_data.timestamp = 0;
+    out.can_data.timestamp = in.Timestamp;
 
     out.navigation_locked = static_cast<uint8_t>(in.NavigationLocked);
     out.activation_delta_sec = in.ActivationDelta;
@@ -707,6 +707,7 @@ struct GpsEx
     out.LowSpeedCapable = static_cast<EActive>(in.low_speed_capable);
     out.SerialNumber = in.serial_number;
     out.Source = in.can_data.source;
+    out.Timestamp = in.can_data.timestamp;
     return out;
   }
 };

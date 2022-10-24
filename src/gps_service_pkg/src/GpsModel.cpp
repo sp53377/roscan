@@ -90,6 +90,7 @@ void GpsModel::Update(EMessageFlag flag, const ms64_t& timestamp)
       UpdateDevice();
       Epoch.Direction = Direction.Get(timestamp);
       Epoch.Timestamp = timestamp;
+      Extended.Timestamp = timestamp;
       ServicePtr->PublishGpsEpoch(Epoch);
       ServicePtr->PublishGpsEx(Extended);
       PreviousTimestamp = timestamp;
