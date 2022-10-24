@@ -1,4 +1,9 @@
+///////////////////////////////////////////////////////////////////////////////
+// Copyright Deere & Company. For more information,
+// please see COPYRIGHT file in root of source repository.
+///////////////////////////////////////////////////////////////////////////////
 #pragma once
+
 #include "can_interfaces/srv/register_msg.hpp"
 #include "rclcpp/rclcpp.hpp"
 #include <CANFactory/CanMessage.h>

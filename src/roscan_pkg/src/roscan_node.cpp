@@ -1,3 +1,8 @@
+///////////////////////////////////////////////////////////////////////////////
+// Copyright Deere & Company. For more information,
+// please see COPYRIGHT file in root of source repository.
+///////////////////////////////////////////////////////////////////////////////
+
 #include "CanBridge.hpp"
 #include <GpsService/GpsServiceMessages.hpp>
 #include <CANFactory/CanMessage.h>
