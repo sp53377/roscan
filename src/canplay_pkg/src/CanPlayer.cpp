@@ -8,6 +8,7 @@
 #include <thread>
 
 using namespace std;
+using namespace std::chrono;
 
 CanPlayer::~CanPlayer()
 {
@@ -63,9 +64,15 @@ bool CanPlayer::ProcessLog(bool& isValidOut, MessageInstance_t& messageOut)
   return more;
 }
 
-bool CanPlayer::Step(bool& isValidOut, MessageInstance_t& messageOut)
+bool CanPlayer::TryReceive(bool& isValidOut, MessageInstance_t& messageOut)
 {
   bool more = More;
   More = ProcessLog(isValidOut, messageOut);
   return more;
+}
+
+bool CanPlayer::Send(sc::CanMessage_t& msg)
+{
+  (void)msg;
+  return true;
 }

@@ -13,8 +13,15 @@
 #include <type_traits>
 #include <vector>
 
+
 namespace sc
 {
+   template <typename rostype> void CanDataFromROS(const rostype & in, uint8_t* pSource, int64_t* pTimestamp)
+   {
+      if(pSource){ *pSource = in.can_data.source;}
+      if(pTimestamp){*pTimestamp = in.can_data.timestamp;}
+   }
+
    typedef uint8_t addr_t;
    typedef uint16_t node_t;
    typedef uint32_t pgn_t;

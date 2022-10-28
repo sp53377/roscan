@@ -4,11 +4,16 @@
 ///////////////////////////////////////////////////////////////////////////////
 
 #include "CanBridge.hpp"
-#include <GpsService/GpsServiceMessages.hpp>
+#include <GpsService/GpsServiceBridges.hpp>
+#include <CANFactory/CanMessageBridges.hpp>
 #include <CANFactory/CanMessage.h>
 
 void RegisterGpsService(CanBridge & bridge)
 {
+  bridge.BridgeGlobal<bridge::GlobalPgnRequest>(2);
+  bridge.Register<bridge::GlobalPgnRequest>(2);
+  bridge.BridgeGlobal<bridge::PgnRequest>(2);
+  bridge.Register<bridge::PgnRequest>(2);
   bridge.Register<bridge::VehiclePosition>(2);
   bridge.Register1Cmd<bridge::DifferentialStatus>(2);
   bridge.Register1Cmd<bridge::RollYawRateVehicle>(2);

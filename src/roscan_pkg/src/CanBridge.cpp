@@ -4,33 +4,54 @@
 ///////////////////////////////////////////////////////////////////////////////
 #include "CanBridge.hpp"
 #include <CANFactory/CANTypes.h>
+#include <CANFactory/CanQueues.hpp>
 #include <chrono>
 using namespace std::chrono_literals;
 using namespace boost::interprocess;
 
 CanBridge::CanBridge(std::shared_ptr<rclcpp::Node> & node)
 : Node(node),
-  Queue(CanBridge::MakeQueue()),
   Publish(Node->create_publisher<std_msgs::msg::String>("topic", 10)),
   RegisterMsgClient(Node->create_client<can_interfaces::srv::RegisterMsg>("register_msg")),
   Timer(Node->create_wall_timer(500ms, std::bind(&CanBridge::OnTimeout, this)))
 {
   WaitForService();
+  WaitForConnect();
 }
 
-std::shared_ptr<message_queue> CanBridge::MakeQueue()
+std::shared_ptr<message_queue> CanBridge::MakeRxQueue()
 {
   std::shared_ptr<message_queue> queue;
   try {
-    message_queue::remove("canbus");
-    queue = std::make_shared<message_queue>(create_only, "canbus", 1000, sizeof(sc::CanMessage_t));
-  } catch (const std::exception & /*e*/) {
+    queue = std::make_shared<message_queue>(open_only, sc::CanRx);
+  } catch (const std::exception & e) {
     RCLCPP_ERROR(
       rclcpp::get_logger(
-        "rclcpp"), "Couldn't create the canbus queue...");
-    //std::cerr << e.what() << '\n';
+        "rclcpp"), "Couldn't connect to canbus rx queue retrying...");
+      std::cerr << e.what() << '\n';
   }
   return queue;
+}
+
+std::shared_ptr<boost::interprocess::message_queue> CanBridge::MakeTxQueue()
+{
+  std::shared_ptr<message_queue> queue;
+  do {
+    try {
+      queue = std::make_shared<message_queue>(open_only, sc::CanTx);
+    } catch (const std::exception & e) {
+      std::cout << "Couldn't connect to canbus tx queue retrying..." << std::endl;
+      std::cerr << e.what() << '\n';
+      std::this_thread::sleep_for(std::chrono::milliseconds(500));
+    }
+  } while (!queue);
+  return queue;
+}
+
+void CanBridge::WaitForConnect()
+{
+  RxQueue = MakeRxQueue();
+  TxQueue = MakeTxQueue();
 }
 
 void CanBridge::WaitForService()
@@ -58,7 +79,7 @@ void CanBridge::Step()
   sc::CanMessage_t msg;
   std::size_t receivedSize;
   unsigned int priority = 0;
-  if (Queue->try_receive(&msg, sizeof(sc::CanMessage_t), receivedSize, priority)) {
+  if (RxQueue->try_receive(&msg, sizeof(sc::CanMessage_t), receivedSize, priority)) {
     if (receivedSize == sizeof(sc::CanMessage_t)) {
       HandleMessage(msg);
       Count++;
@@ -134,4 +155,11 @@ void CanBridge::HandleMessage(const sc::CanMessage_t & msg)
       it->second.Fn(msg);
     }
   }
+}
+
+void CanBridge::Send(const sc::CanMessage_t& out)
+{
+    if (!TxQueue->try_send(&out, sizeof(sc::CanMessage_t), 0)) {
+      std::cout << "CAN Send Failed" << std::endl;
+    }
 }

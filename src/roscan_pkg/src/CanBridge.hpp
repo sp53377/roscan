@@ -21,6 +21,9 @@ private:
 
   using ForwarderFn = std::function<void(const sc::CanMessage_t&)>;
   
+  using Bridge_t = std::shared_ptr<rclcpp::SubscriptionBase>;
+  using BridgeList = std::list<Bridge_t>;
+
   struct Subscription_t
   {
     uint32_t Handle = INVALID_HANDLE;
@@ -38,15 +41,20 @@ private:
   using SubscriptionRange = std::pair<SubscriptionIterator, SubscriptionIterator>;
 
   std::shared_ptr<rclcpp::Node> & Node;
-  std::shared_ptr<boost::interprocess::message_queue> Queue;
+  std::shared_ptr<boost::interprocess::message_queue> RxQueue;
+  std::shared_ptr<boost::interprocess::message_queue> TxQueue;
   rclcpp::Publisher<std_msgs::msg::String>::SharedPtr Publish;
   rclcpp::Client<can_interfaces::srv::RegisterMsg>::SharedPtr RegisterMsgClient;
   rclcpp::TimerBase::SharedPtr Timer;
   SubscriptionMultimap Subscriptions;
+  BridgeList Bridges;
   size_t Count = 0;
+  uint8_t SourceAddress = 0x99;//TODO Do Address Claim
 
-  static std::shared_ptr<boost::interprocess::message_queue> MakeQueue();
+  static std::shared_ptr<boost::interprocess::message_queue> MakeRxQueue();
+  static std::shared_ptr<boost::interprocess::message_queue> MakeTxQueue();
 
+  void WaitForConnect();
   void WaitForService();
   void OnTimeout();
   void HandleMessage(const sc::CanMessage_t & msg);
@@ -62,10 +70,28 @@ private:
 	};
   }
   static bool Matches(const Subscription_t & subscription, const sc::CanMessage_t & msg);
+
+  void Send(const sc::CanMessage_t& out);
+
+  template <typename T> void Send(const T& in, uint8_t bus, uint8_t destinationAddress, bool global)
+  {
+	sc::CanMessage_t out;
+	out.Length = static_cast<uint8_t>(sizeof(T));
+	assert(out.Length<=8);
+	if(out.Length<=8)
+	{
+		memcpy(out.Bytes,&in,out.Length);
+		out.Channel = bus;
+		out.FrameId = global ? sc::MakeFrameId(T::PGN, T::PRIORITY, SourceAddress) : sc::MakeFrameId(T::PGN,T::PRIORITY,SourceAddress, destinationAddress);
+		out.Timestamp = 0;
+		Send(out);
+	}
+  }
 public:
   static constexpr uint32_t INVALID_HANDLE = 0;
 
   explicit CanBridge(std::shared_ptr<rclcpp::Node> & node);
+
   Subscription_t Register(uint8_t channel, int32_t pgn, uint64_t mask, uint64_t match, uint8_t address, const ForwarderFn& fn = ForwarderFn());
   Subscription_t Register(uint8_t channel, int32_t pgn, uint8_t address, const ForwarderFn& fn = ForwarderFn());
   Subscription_t Register1Cmd(uint8_t channel, int32_t pgn, uint8_t cmdByte, uint8_t address, const ForwarderFn& fn = ForwarderFn());
@@ -83,6 +109,28 @@ public:
   template<typename T> Subscription_t Register2Cmd(uint8_t channel, uint8_t address = sc::NULL_ADDRESS)
   {
     return Register2Cmd(channel, T::cantype::PGN, T::cantype::CMD1, T::cantype::CMD2, address, MakeForwarder<T>());
+  }
+
+  template<typename T> std::shared_ptr<rclcpp::SubscriptionBase> BridgeGlobal(uint8_t bus)
+  {
+	auto bridge = Node->create_subscription<typename T::rostype>(T::topic, 10, [&,bus](const std::shared_ptr<typename T::rostype> msg){
+		auto cppMsg = T::FromROS(*msg, nullptr, nullptr);
+		auto canMsg = T::cantype::ToCAN(cppMsg);
+		Send(canMsg, bus, 0xFF, true);
+	});
+	Bridges.emplace_back(bridge);
+	return bridge;
+  }
+
+  template<typename T> std::shared_ptr<rclcpp::SubscriptionBase> Bridge(uint8_t bus, bool global)
+  {
+	auto bridge = Node->create_subscription<typename T::rostype>(T::topic, 10, [&,bus,global](const std::shared_ptr<typename T::rostype> msg){
+		auto cppMsg = T::FromROS(*msg, nullptr, nullptr);
+		auto canMsg = T::cantype::ToCAN(cppMsg);
+		Send(canMsg, bus, msg.destination_addr, false);
+	});
+	Bridges.emplace_back(bridge);
+	return bridge;
   }
 
   void Step();

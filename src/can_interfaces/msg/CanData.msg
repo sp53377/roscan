@@ -1,2 +1,2 @@
-uint8 source
-int64 timestamp
+uint8 source 255
+int64 timestamp 0

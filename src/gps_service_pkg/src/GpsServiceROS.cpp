@@ -31,21 +31,21 @@ sc::CANDevice GpsServiceROS::GetDevice(sc::node_t node) const
 
 void GpsServiceROS::Register()
 {
-  VehiclePositionSub = Subscribe<bridge::VehiclePosition>();
-  DifferentialStatusSub = Subscribe<bridge::DifferentialStatus>();
-  RollYawRateVehicleSub = Subscribe<bridge::RollYawRateVehicle>();
-  RollYawRateImplementSub = Subscribe<bridge::RollYawRateImplement>();
-  PitchAltitudeSub = Subscribe<bridge::PitchAltitude>();
-  DirectionSpeedSub = Subscribe<bridge::DirectionSpeed>();
-  BearingSpeedSub = Subscribe<bridge::BearingSpeed>();
-  TimeDateSub = Subscribe<bridge::TimeDate>();
-  TerrainCompensationVehicleSub = Subscribe<bridge::TerrainCompensationVehicle>();
-  TerrainCompensationImplementSub = Subscribe<bridge::TerrainCompensationImplement>();
-  GpsStatusVehicleSub = Subscribe<bridge::GpsStatusVehicle>();
-  GpsStatusImplementSub = Subscribe<bridge::GpsStatusImplement>();
-  SatellitesUsedSub = Subscribe<bridge::SatellitesUsed>();
-  ReceiverInfoSub = Subscribe<bridge::ReceiverInfo>();
-  HeadingModeSub = Subscribe<bridge::HeadingMode>();
-  MachineSelectedSpeedSub = Subscribe<bridge::MachineSelectedSpeed>();
-  WheelBasedSpeedAndDistanceSub = Subscribe<bridge::WheelBasedSpeedAndDistance>();
+  Subscribe<bridge::VehiclePosition>();
+  Subscribe<bridge::DifferentialStatus>();
+  Subscribe<bridge::RollYawRateVehicle>();
+  Subscribe<bridge::RollYawRateImplement>();
+  Subscribe<bridge::PitchAltitude>();
+  Subscribe<bridge::DirectionSpeed>();
+  Subscribe<bridge::BearingSpeed>();
+  Subscribe<bridge::TimeDate>();
+  Subscribe<bridge::TerrainCompensationVehicle>();
+  Subscribe<bridge::TerrainCompensationImplement>();
+  Subscribe<bridge::GpsStatusVehicle>();
+  Subscribe<bridge::GpsStatusImplement>();
+  Subscribe<bridge::SatellitesUsed>();
+  Subscribe<bridge::ReceiverInfo>();
+  Subscribe<bridge::HeadingMode>();
+  Subscribe<bridge::MachineSelectedSpeed>();
+  Subscribe<bridge::WheelBasedSpeedAndDistance>();
 }

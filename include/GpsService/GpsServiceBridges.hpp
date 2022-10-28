@@ -26,13 +26,6 @@
 
 namespace bridge
 {
-
-template <typename rostype> void CanDataFromROS(const rostype & in, uint8_t* pSource, int64_t* pTimestamp)
-{
-	if(pSource){ *pSource = in.can_data.source;}
-	if(pTimestamp){*pTimestamp = in.can_data.timestamp;}
-}
-
 struct VehiclePosition
 {
   using cantype = gps::CANVehiclePosition;
@@ -51,7 +44,7 @@ struct VehiclePosition
   static inline cpptype FromROS(const rostype & in, uint8_t* pSource= nullptr, int64_t* pTimestamp= nullptr)
   {
     cpptype out;
-    bridge::CanDataFromROS(in, pSource, pTimestamp);
+    sc::CanDataFromROS(in, pSource, pTimestamp);
     out.Latitude = in.latitude;
     out.Longitude = in.longitude;
     return out;
@@ -87,7 +80,7 @@ struct DifferentialStatus
   static inline cpptype FromROS(const rostype & in, uint8_t* pSource= nullptr, int64_t* pTimestamp= nullptr)
   {
     cpptype out;
-    bridge::CanDataFromROS(in, pSource, pTimestamp);
+    sc::CanDataFromROS(in, pSource, pTimestamp);
     out.DiffLocked = static_cast<ELocked>(in.diff_locked);
     out.AugmentationType = static_cast<gps::EAugmentationType>(in.augmentation_type);
     out.SignalToNoiseRatio = static_cast<db32_t>(in.signal_to_noise_ratio);
@@ -124,7 +117,7 @@ struct RollYawRate
   static inline cpptype FromROS(const rostype & in, uint8_t* pSource= nullptr, int64_t* pTimestamp= nullptr)
   {
     cpptype out;
-    bridge::CanDataFromROS(in, pSource, pTimestamp);
+    sc::CanDataFromROS(in, pSource, pTimestamp);
     out.CosRollAngle = in.cos_roll_angle_rad;
     out.RollAngle = in.roll_angle_deg;
     out.YawRate = in.yaw_rate_dps;
@@ -164,7 +157,7 @@ struct PitchAltitude
   static inline cpptype FromROS(const rostype & in, uint8_t* pSource= nullptr, int64_t* pTimestamp= nullptr)
   {
     cpptype out;
-    bridge::CanDataFromROS(in, pSource, pTimestamp);
+    sc::CanDataFromROS(in, pSource, pTimestamp);
     out.Pitch = in.pitch_deg;
     out.Altitude = in.altitude_m;
     return out;
@@ -191,7 +184,7 @@ struct DirectionSpeed
   static inline cpptype FromROS(const rostype & in, uint8_t* pSource= nullptr, int64_t* pTimestamp= nullptr)
   {
     cpptype out;
-    bridge::CanDataFromROS(in, pSource, pTimestamp);
+    sc::CanDataFromROS(in, pSource, pTimestamp);
     out.Bearing = in.bearing_deg;
     out.Speed = in.speed_kph;
     out.Pitch = in.pitch_deg;
@@ -218,7 +211,7 @@ struct BearingSpeed
   static inline cpptype FromROS(const rostype & in, uint8_t* pSource= nullptr, int64_t* pTimestamp= nullptr)
   {
     cpptype out;
-    bridge::CanDataFromROS(in, pSource, pTimestamp);
+    sc::CanDataFromROS(in, pSource, pTimestamp);
     out.Bearing = in.bearing_deg;
     out.Speed = in.speed_kph;
     return out;
@@ -249,7 +242,7 @@ struct TimeDate
   static inline cpptype FromROS(const rostype & in, uint8_t* pSource= nullptr, int64_t* pTimestamp= nullptr)
   {
     cpptype out;
-    bridge::CanDataFromROS(in, pSource, pTimestamp);
+    sc::CanDataFromROS(in, pSource, pTimestamp);
     out.Second = in.second;
     out.Minute = in.minute;
     out.Hour = in.hour;
@@ -285,7 +278,7 @@ struct TerrainCompensation
   static inline cpptype FromROS(const rostype & in, uint8_t* pSource= nullptr, int64_t* pTimestamp= nullptr)
   {
     cpptype out;
-    bridge::CanDataFromROS(in, pSource, pTimestamp);
+    sc::CanDataFromROS(in, pSource, pTimestamp);
     out.TCMode = static_cast<EActive>(in.tc_mode);
     out.TCAccuracy = in.tc_accuracy;
     out.Direction = static_cast<EDirection>(in.direction);
@@ -333,7 +326,7 @@ struct GpsStatus
   static inline cpptype FromROS(const rostype & in, uint8_t* pSource= nullptr, int64_t* pTimestamp= nullptr)
   {
     cpptype out;
-    bridge::CanDataFromROS(in, pSource, pTimestamp);
+    sc::CanDataFromROS(in, pSource, pTimestamp);
     out.Mode = static_cast<gps::EPositionMode>(in.mode);
     out.State = static_cast<gps::ECorrectionState>(in.state);
     out.VelocitySolutionSatellites = in.velocity_solution_satellites;
@@ -377,7 +370,7 @@ struct SatellitesUsed
   static inline cpptype FromROS(const rostype & in, uint8_t* pSource= nullptr, int64_t* pTimestamp= nullptr)
   {
     cpptype out;
-    bridge::CanDataFromROS(in, pSource, pTimestamp);
+    sc::CanDataFromROS(in, pSource, pTimestamp);
     out.SatellitesMask = in.satellites_mask;
     out.LatitudeEx = in.latitude_ex_deg;
     out.LongitudeEx = in.longitude_ex_deg;
@@ -407,7 +400,7 @@ struct ReceiverInfo
   static inline cpptype FromROS(const rostype & in, uint8_t* pSource= nullptr, int64_t* pTimestamp= nullptr)
   {
     cpptype out;
-    bridge::CanDataFromROS(in, pSource, pTimestamp);
+    sc::CanDataFromROS(in, pSource, pTimestamp);
     out.LicenseDays = in.license_days;
     out.HardwareVersion = in.hardware_version;
     out.SoftwareVersion = in.software_version;
@@ -442,7 +435,7 @@ struct HeadingMode
   static inline cpptype FromROS(const rostype & in, uint8_t* pSource= nullptr, int64_t* pTimestamp= nullptr)
   {
     cpptype out;
-    bridge::CanDataFromROS(in, pSource, pTimestamp);
+    sc::CanDataFromROS(in, pSource, pTimestamp);
     out.Heading = in.heading_deg;
     out.NavigationMode = static_cast<gps::EDifferentialSource>(in.navigation_mode);
     out.NavigationLocked = static_cast<ELocked>(in.navigation_locked);
@@ -478,7 +471,7 @@ struct MachineSelectedSpeed
   static inline cpptype FromROS(const rostype & in, uint8_t* pSource= nullptr, int64_t* pTimestamp= nullptr)
   {
     cpptype out;
-    bridge::CanDataFromROS(in, pSource, pTimestamp);
+    sc::CanDataFromROS(in, pSource, pTimestamp);
     out.Direction = static_cast<EDirection>(in.direction);
     out.Distance = in.distance_m;
     out.ExitCode = in.exit_code;
@@ -512,7 +505,7 @@ struct WheelBasedSpeedAndDistance
   static inline cpptype FromROS(const rostype & in, uint8_t* pSource= nullptr, int64_t* pTimestamp= nullptr)
   {
     cpptype out;
-    bridge::CanDataFromROS(in, pSource, pTimestamp);
+    sc::CanDataFromROS(in, pSource, pTimestamp);
     out.Distance = in.distance_m;
     out.KeySwitch = static_cast<EOnOff>(in.key_switch);
     out.MachineDirection = static_cast<EDirection>(in.machine_direction);
@@ -729,7 +722,7 @@ struct xxxxx
   static inline cpptype FromROS(const rostype & in, uint8_t* pSource= nullptr, int64_t* pTimestamp= nullptr)
   {
     cpptype out;
-    bridge::CanDataFromROS(in, pSource, pTimestamp);
+    sc::CanDataFromROS(in, pSource, pTimestamp);
     out = static_cast<xxxx>(in);
     return out;
   }

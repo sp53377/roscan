@@ -6,7 +6,8 @@
 #pragma once
 
 #include "GpsModel.h"
-#include <GpsService/GpsServiceMessages.hpp>
+#include <CANFactory/CanMessageBridges.hpp>
+#include <GpsService/GpsServiceBridges.hpp>
 #include "rclcpp/rclcpp.hpp"
 #include <CommonCore/CommonTypes.h>
 #include <map>
@@ -45,20 +46,9 @@ namespace gps
          }
       }
 
-      void PublishGpsEpoch(const gps::GpsEpoch& epoch)
-      {
-	EpochPublisher->publish(bridge::GpsEpoch::ToROS(epoch));
-      }
-
-      void PublishGpsEx(const gps::GpsEx& ex)
-      {
-	ExPublisher->publish(bridge::GpsEx::ToROS(ex));
-      }
-
-      void PublishGpsDevice(const gps::GpsDevice& device)
-      {
-	DevicePublisher->publish(bridge::GpsDevice::ToROS(device));
-      }
+      void PublishGpsEpoch(const gps::GpsEpoch& epoch);
+      void PublishGpsEx(const gps::GpsEx& ex);
+      void PublishGpsDevice(const gps::GpsDevice& device);
 
    private:
       typedef std::map<sc::node_t, GpsModel> ModelMap;
@@ -69,5 +59,6 @@ namespace gps
       rclcpp::Publisher<bridge::GpsEpoch::rostype>::SharedPtr EpochPublisher;
       rclcpp::Publisher<bridge::GpsEx::rostype>::SharedPtr ExPublisher;
       rclcpp::Publisher<bridge::GpsDevice::rostype>::SharedPtr DevicePublisher;
+      rclcpp::Publisher<bridge::GlobalPgnRequest::rostype>::SharedPtr PgnReqPublisher;
    };
 }

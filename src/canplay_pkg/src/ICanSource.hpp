@@ -16,5 +16,6 @@ class ICanSource
 {
   public:
     virtual ~ICanSource(){};
-    virtual bool Step(bool& isValidOut, MessageInstance_t& messageOut) = 0;
+    virtual bool TryReceive(bool& isValidOut, MessageInstance_t& messageOut) = 0;
+    virtual bool Send(sc::CanMessage_t& msg) = 0;
 };

@@ -3,7 +3,7 @@
 // please see COPYRIGHT file in root of source repository.
 ///////////////////////////////////////////////////////////////////////////////
 #include "GpsService.h"
-#include <GpsService/GpsServiceMessages.hpp>
+#include <GpsService/GpsServiceBridges.hpp>
 #include <CANFactory/CanMessage.h>
 
 int main(int argc, char * argv[])

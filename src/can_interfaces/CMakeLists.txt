@@ -24,6 +24,7 @@ rosidl_generate_interfaces(${PROJECT_NAME}
   "msg/BearingSpeed.msg"
   "msg/CanData.msg"
   "msg/DirectionSpeed.msg"
+  "msg/PgnRequest.msg"
   "msg/GpsDevice.msg"
   "msg/GpsEpoch.msg"
   "msg/GpsEx.msg"

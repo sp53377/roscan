@@ -27,5 +27,6 @@ public:
   virtual ~CanPlayer();
 
   bool Open(const char * path);
-  bool Step(bool& isValidOut, MessageInstance_t& messageOut) override;
+  bool TryReceive(bool& isValidOut, MessageInstance_t& messageOut) override;
+  bool Send(sc::CanMessage_t& msg) override;
 };

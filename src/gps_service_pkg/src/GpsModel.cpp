@@ -93,6 +93,7 @@ void GpsModel::Update(EMessageFlag flag, const ms64_t& timestamp)
       Extended.Timestamp = timestamp;
       ServicePtr->PublishGpsEpoch(Epoch);
       ServicePtr->PublishGpsEx(Extended);
+      ServicePtr->HandleEpochReceived(timestamp);
       PreviousTimestamp = timestamp;
 
       ClearFlags();

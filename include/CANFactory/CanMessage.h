@@ -12,6 +12,21 @@
 
 namespace sc
 {
+constexpr uint32_t MakeFrameId(uint16_t pgn, uint8_t priority)
+{
+  return ((static_cast<uint32_t>(priority) <<26) | (static_cast<uint32_t>(pgn) << 8) | 0xFF) ;
+}
+
+constexpr uint32_t MakeFrameId(uint16_t pgn, uint8_t priority, uint8_t sourceAddr)
+{
+  return ((static_cast<uint32_t>(priority) <<26) | (static_cast<uint32_t>(pgn) << 8) | static_cast<uint32_t>(sourceAddr));
+}
+
+constexpr uint32_t MakeFrameId(uint16_t pgn, uint8_t priority, uint8_t sourceAddr, uint8_t destAddr)
+{
+  return ((static_cast<uint32_t>(priority) <<26) | (static_cast<uint32_t>(pgn & 0xFF00) << 8) | (static_cast<uint32_t>(destAddr) << 8) | static_cast<uint32_t>(sourceAddr));
+}
+
 struct CanMessage_t
 {
   int8_t Channel = -1;
@@ -52,10 +67,9 @@ static inline CANMsg ToCANMsgType(const CanMessage_t& in)
 static inline std::string ToString(const CanMessage_t & msg, const double & timestamp = 0.0)
 {
   std::stringstream ss;
-  ss << "ch:" << std::setfill('0') << std::setw(2) << (int) msg.Channel <<
-    " pgn:" << std::setw(8) << std::hex << std::uppercase << msg.FrameId <<
-    " len:" << std::setw(2) << (int) msg.Length;
-  ss << " bytes:";
+  ss << std::setfill('0') << std::setw(2) << (int) msg.Channel <<
+    " " << std::setw(8) << std::hex << std::uppercase << msg.FrameId <<
+    " " << std::setw(2) << (int) msg.Length;
   for (int i = 0; i < 8; ++i) {
     if (i < msg.Length) {
       ss << " " << std::setfill('0') << std::setw(2) << std::hex << std::uppercase <<
@@ -64,7 +78,7 @@ static inline std::string ToString(const CanMessage_t & msg, const double & time
       ss << "   ";
     }
   }
-  ss << " ts:" << std::setprecision(12) << timestamp;
+  ss << " " << std::setprecision(12) << timestamp;
   return ss.str();
 }
 

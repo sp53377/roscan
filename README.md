@@ -62,7 +62,7 @@ Adding boilerplate for extending the ROSCAN bridge with new messages
 1. Add a CAN-Type struct to `.../roscan/include/GpsService/GpsMessages.h`
 2. Add a CPP-Type struct to `.../roscan/include/GpsService/GpsMessages.h`
 3. Add a ROS-Type .msg to `.../roscan/src/can_interfaces/msg`
-4. Add a Bridge-Struct to `.../roscan/include/GpsService/GpsServiceMessages.hpp`
+4. Add a Bridge-Struct to `.../roscan/include/GpsService/GpsServiceBridges.hpp`
 5. Register the Bridge-Struct in ROSCAN `.../roscan/src/roscan_pkg/src/roscan_node.cpp`
 6. Subscribe to the Bridge-Struct in GPS Service `.../roscan/src/gps_service_pkg/src/GpsServiceROS.cpp`
 

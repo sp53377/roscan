@@ -5,9 +5,10 @@
 #pragma once
 #include "ICanSource.hpp"
 #include "rclcpp/rclcpp.hpp"
-#include <can_interfaces/srv/register_msg.hpp>
-#include <map>
 #include <boost/interprocess/ipc/message_queue.hpp>
+#include <can_interfaces/srv/register_msg.hpp>
+#include <chrono>
+#include <map>
 
 class CanNode
 {
@@ -30,17 +31,23 @@ private:
 
   std::shared_ptr<rclcpp::Node> & Node;
   ICanSource & Source;
-  std::shared_ptr<boost::interprocess::message_queue> Queue;
+  std::shared_ptr<boost::interprocess::message_queue> RxQueue;
+  std::shared_ptr<boost::interprocess::message_queue> TxQueue;
   rclcpp::Service<can_interfaces::srv::RegisterMsg>::SharedPtr RegisterMsgSvc;
   SubscriptionMultimap Subscriptions;
   uint32_t LastHandle = 0;
+  std::chrono::_V2::steady_clock::time_point StartTime;
+
+  static std::shared_ptr<boost::interprocess::message_queue> MakeRxQueue();
+  static std::shared_ptr<boost::interprocess::message_queue> MakeTxQueue();
 
   static bool Matches(const Subscription_t & subscription, const sc::CanMessage_t & msg);
-  void WaitForConnect();
+  void CreateMessageQueues();
   bool HasSubscription(const sc::CanMessage_t & msg) const;
   void Publish(const sc::CanMessage_t & msg);
   int32_t AddSubscription(uint8_t channel, int32_t pgnMask, int32_t pgn, int64_t mask,int64_t match);
-
+  bool PopOutgoing(sc::CanMessage_t& msg);
+  double GetTimestamp();
 public:
   CanNode(ICanSource & source, std::shared_ptr<rclcpp::Node> & node);
   bool Step();
