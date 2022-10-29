@@ -34,10 +34,10 @@ namespace gps
       template<typename T> typename rclcpp::Subscription<typename T::rostype>::SharedPtr Subscribe()
       {
 	auto subscription = Node->create_subscription<typename T::rostype>(T::topic, 10, [&](const std::shared_ptr<typename T::rostype> msg){
-		uint8_t source;
+		uint32_t frameId;
 		int64_t timestamp;
-		const auto& cppMsg = T::FromROS(*msg, &source, &timestamp);
-		sc::node_t node = source;
+		const auto& cppMsg = T::FromROS(*msg, &frameId, &timestamp);
+		sc::node_t node = sc::GetSourceAddrFromFrameId(frameId);//TODO create a node index from a name table
 		Service.Handle(node, cppMsg, timestamp);
 	});
 	Subscriptions.emplace_back(subscription);

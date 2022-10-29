@@ -16,10 +16,31 @@
 
 namespace sc
 {
-   template <typename rostype> void CanDataFromROS(const rostype & in, uint8_t* pSource, int64_t* pTimestamp)
+   template <typename rostype> void CanDataFromROS(const rostype & in, uint32_t* pFrameId, int64_t* pTimestamp)
    {
-      if(pSource){ *pSource = in.can_data.source;}
+      if(pFrameId){ *pFrameId = in.can_data.frame_id;}
       if(pTimestamp){*pTimestamp = in.can_data.timestamp;}
+   }
+
+   static constexpr uint8_t GetSourceAddrFromFrameId(const uint32_t frameId)
+   {
+	return frameId & 0xFF;
+   }
+
+
+   static constexpr uint32_t GetPGNFromFrameId(const uint32_t frameId)
+   {
+	return ((frameId>>8) & 0xFFFF);
+   }
+
+   static constexpr uint8_t GetDestinationAddrFromFrameId(const uint32_t frameId)
+   {
+	return (frameId>>8) & 0xFF;
+   }
+
+   static constexpr uint8_t GetPriorityFromFrameId(const uint32_t frameId)
+   {
+	return static_cast<uint8_t>((frameId>>26) & 0x7);
    }
 
    typedef uint8_t addr_t;

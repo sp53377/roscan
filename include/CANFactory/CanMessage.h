@@ -52,12 +52,12 @@ static inline CANMsg ToCANMsgType(const CanMessage_t& in)
 {
   CANMsg out;
   out.Source = static_cast<sc::addr_t>(in.FrameId & 0xFF);
-  out.Destination = sc::NULL_ADDRESS;
+  out.Destination = sc::GetDestinationAddrFromFrameId(in.FrameId);
   out.Bus = in.Channel;
-  out.Pgn = static_cast<sc::pgn_t>((in.FrameId>>8) & 0xFFFF);
+  out.Pgn = sc::GetPGNFromFrameId(in.FrameId);
   out.Length = in.Length;
   out.Timestamp = 0;//TODO Get Timestamp
-  out.Priority = static_cast<uint8_t>((in.FrameId>>26) & 0x7);
+  out.Priority = sc::GetPriorityFromFrameId(in.FrameId);
   out.SourceDeviceID = out.Source;//TODO Enumerate CAN Name Table
   out.DestinationDeviceID = sc::INVALID_NODE;
   out.Data = const_cast<uint8_t*>(in.Bytes);

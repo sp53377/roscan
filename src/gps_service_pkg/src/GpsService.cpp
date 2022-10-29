@@ -75,13 +75,6 @@ void GpsService::HandleEpochReceived(const int64_t & timestamp)
 void GpsService::PublishGpsEpoch(const gps::GpsEpoch & epoch)
 {
   EpochPublisher->publish(bridge::GpsEpoch::ToROS(epoch));
-
-  std::cout << "Epoch" << std::endl;
-  can_interfaces::msg::PgnRequest pgnReq;
-  pgnReq.pgn = 0x12345;
-  pgnReq.can_data.source = 0;
-  pgnReq.can_data.timestamp = 0;
-  PgnReqPublisher->publish(pgnReq);
 }
 
 void GpsService::PublishGpsEx(const gps::GpsEx & ex)

@@ -23,10 +23,10 @@ struct PgnRequestBase
     return out;
   }
 
-  static inline cpptype FromROS(const rostype & in, uint8_t* pSource= nullptr, int64_t* pTimestamp= nullptr)
+  static inline cpptype FromROS(const rostype & in, uint32_t* pFrameId= nullptr, int64_t* pTimestamp= nullptr)
   {
     cpptype out;
-    sc::CanDataFromROS(in, pSource, pTimestamp);
+    sc::CanDataFromROS(in, pFrameId, pTimestamp);
     out.RequestedPGN = in.pgn;
     out.Destination = in.destination_addr;
     return out;
@@ -41,6 +41,11 @@ struct GlobalPgnRequest : public PgnRequestBase
 struct PgnRequest : public PgnRequestBase
 {
   static constexpr const char * topic = "/sc/PgnRequest";
+};
+
+struct PgnRequestIn : public PgnRequestBase
+{
+  static constexpr const char * topic = "/sc/PgnRequest/in";
 };
 /*
 struct xxxxx
@@ -57,10 +62,10 @@ struct xxxxx
     return out;
   }
 
-  static inline cpptype FromROS(const rostype & in, uint8_t* pSource= nullptr, int64_t* pTimestamp= nullptr)
+  static inline cpptype FromROS(const rostype & in, uint32_t* pFrameId= nullptr, int64_t* pTimestamp= nullptr)
   {
     cpptype out;
-    bridge::CanDataFromROS(in, pSource, pTimestamp);
+    bridge::pFrameId(in, pSource, pTimestamp);
     out = static_cast<xxxx>(in);
     return out;
   }

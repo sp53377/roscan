@@ -44,7 +44,7 @@ private:
   static bool Matches(const Subscription_t & subscription, const sc::CanMessage_t & msg);
   void CreateMessageQueues();
   bool HasSubscription(const sc::CanMessage_t & msg) const;
-  void Publish(const sc::CanMessage_t & msg);
+  bool Publish(const sc::CanMessage_t & msg);
   int32_t AddSubscription(uint8_t channel, int32_t pgnMask, int32_t pgn, int64_t mask,int64_t match);
   bool PopOutgoing(sc::CanMessage_t& msg);
   double GetTimestamp();

@@ -10,9 +10,10 @@
 
 void RegisterGpsService(CanBridge & bridge)
 {
+  bridge.GenericRegister(2, 0xEA00, sc::NULL_ADDRESS, "/can/PGNReq");
   bridge.BridgeGlobal<bridge::GlobalPgnRequest>(2);
-  bridge.Register<bridge::GlobalPgnRequest>(2);
-  bridge.BridgeGlobal<bridge::PgnRequest>(2);
+  bridge.Register<bridge::PgnRequestIn>(2);
+  bridge.Bridge<bridge::PgnRequest>(2);
   bridge.Register<bridge::PgnRequest>(2);
   bridge.Register<bridge::VehiclePosition>(2);
   bridge.Register1Cmd<bridge::DifferentialStatus>(2);

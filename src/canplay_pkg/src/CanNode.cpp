@@ -101,15 +101,18 @@ bool CanNode::HasSubscription(const sc::CanMessage_t & msg) const
   return hasSubscription;
 }
 
-void CanNode::Publish(const sc::CanMessage_t & msg)
+bool CanNode::Publish(const sc::CanMessage_t & msg)
 {
+  bool published = false;
   if (HasSubscription(msg)) {
     sc::CanMessage_t timestampedMsg = msg;
     timestampedMsg.Timestamp = duration_cast<milliseconds>(system_clock::now().time_since_epoch()).count();
-    if (!RxQueue->try_send(&timestampedMsg, sizeof(sc::CanMessage_t), 0)) {
+    published = RxQueue->try_send(&timestampedMsg, sizeof(sc::CanMessage_t), 0);
+    if (!published) {
       std::cout << "Send Failed" << std::endl;
     }
   }
+  return published;
 }
 
 bool CanNode::PopOutgoing(sc::CanMessage_t& msg)

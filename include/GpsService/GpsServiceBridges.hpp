@@ -41,10 +41,10 @@ struct VehiclePosition
     return out;
   }
 
-  static inline cpptype FromROS(const rostype & in, uint8_t* pSource= nullptr, int64_t* pTimestamp= nullptr)
+  static inline cpptype FromROS(const rostype & in, uint32_t* pFrameId= nullptr, int64_t* pTimestamp= nullptr)
   {
     cpptype out;
-    sc::CanDataFromROS(in, pSource, pTimestamp);
+    sc::CanDataFromROS(in, pFrameId, pTimestamp);
     out.Latitude = in.latitude;
     out.Longitude = in.longitude;
     return out;
@@ -77,10 +77,10 @@ struct DifferentialStatus
     return out;
   }
 
-  static inline cpptype FromROS(const rostype & in, uint8_t* pSource= nullptr, int64_t* pTimestamp= nullptr)
+  static inline cpptype FromROS(const rostype & in, uint32_t* pFrameId= nullptr, int64_t* pTimestamp= nullptr)
   {
     cpptype out;
-    sc::CanDataFromROS(in, pSource, pTimestamp);
+    sc::CanDataFromROS(in, pFrameId, pTimestamp);
     out.DiffLocked = static_cast<ELocked>(in.diff_locked);
     out.AugmentationType = static_cast<gps::EAugmentationType>(in.augmentation_type);
     out.SignalToNoiseRatio = static_cast<db32_t>(in.signal_to_noise_ratio);
@@ -114,10 +114,10 @@ struct RollYawRate
     return out;
   }
 
-  static inline cpptype FromROS(const rostype & in, uint8_t* pSource= nullptr, int64_t* pTimestamp= nullptr)
+  static inline cpptype FromROS(const rostype & in, uint32_t* pFrameId= nullptr, int64_t* pTimestamp= nullptr)
   {
     cpptype out;
-    sc::CanDataFromROS(in, pSource, pTimestamp);
+    sc::CanDataFromROS(in, pFrameId, pTimestamp);
     out.CosRollAngle = in.cos_roll_angle_rad;
     out.RollAngle = in.roll_angle_deg;
     out.YawRate = in.yaw_rate_dps;
@@ -154,10 +154,10 @@ struct PitchAltitude
     return out;
   }
 
-  static inline cpptype FromROS(const rostype & in, uint8_t* pSource= nullptr, int64_t* pTimestamp= nullptr)
+  static inline cpptype FromROS(const rostype & in, uint32_t* pFrameId= nullptr, int64_t* pTimestamp= nullptr)
   {
     cpptype out;
-    sc::CanDataFromROS(in, pSource, pTimestamp);
+    sc::CanDataFromROS(in, pFrameId, pTimestamp);
     out.Pitch = in.pitch_deg;
     out.Altitude = in.altitude_m;
     return out;
@@ -181,10 +181,10 @@ struct DirectionSpeed
     return out;
   }
 
-  static inline cpptype FromROS(const rostype & in, uint8_t* pSource= nullptr, int64_t* pTimestamp= nullptr)
+  static inline cpptype FromROS(const rostype & in, uint32_t* pFrameId= nullptr, int64_t* pTimestamp= nullptr)
   {
     cpptype out;
-    sc::CanDataFromROS(in, pSource, pTimestamp);
+    sc::CanDataFromROS(in, pFrameId, pTimestamp);
     out.Bearing = in.bearing_deg;
     out.Speed = in.speed_kph;
     out.Pitch = in.pitch_deg;
@@ -208,10 +208,10 @@ struct BearingSpeed
     return out;
   }
 
-  static inline cpptype FromROS(const rostype & in, uint8_t* pSource= nullptr, int64_t* pTimestamp= nullptr)
+  static inline cpptype FromROS(const rostype & in, uint32_t* pFrameId= nullptr, int64_t* pTimestamp= nullptr)
   {
     cpptype out;
-    sc::CanDataFromROS(in, pSource, pTimestamp);
+    sc::CanDataFromROS(in, pFrameId, pTimestamp);
     out.Bearing = in.bearing_deg;
     out.Speed = in.speed_kph;
     return out;
@@ -239,10 +239,10 @@ struct TimeDate
     return out;
   }
 
-  static inline cpptype FromROS(const rostype & in, uint8_t* pSource= nullptr, int64_t* pTimestamp= nullptr)
+  static inline cpptype FromROS(const rostype & in, uint32_t* pFrameId= nullptr, int64_t* pTimestamp= nullptr)
   {
     cpptype out;
-    sc::CanDataFromROS(in, pSource, pTimestamp);
+    sc::CanDataFromROS(in, pFrameId, pTimestamp);
     out.Second = in.second;
     out.Minute = in.minute;
     out.Hour = in.hour;
@@ -275,10 +275,10 @@ struct TerrainCompensation
     return out;
   }
 
-  static inline cpptype FromROS(const rostype & in, uint8_t* pSource= nullptr, int64_t* pTimestamp= nullptr)
+  static inline cpptype FromROS(const rostype & in, uint32_t* pFrameId= nullptr, int64_t* pTimestamp= nullptr)
   {
     cpptype out;
-    sc::CanDataFromROS(in, pSource, pTimestamp);
+    sc::CanDataFromROS(in, pFrameId, pTimestamp);
     out.TCMode = static_cast<EActive>(in.tc_mode);
     out.TCAccuracy = in.tc_accuracy;
     out.Direction = static_cast<EDirection>(in.direction);
@@ -323,10 +323,10 @@ struct GpsStatus
     return out;
   }
 
-  static inline cpptype FromROS(const rostype & in, uint8_t* pSource= nullptr, int64_t* pTimestamp= nullptr)
+  static inline cpptype FromROS(const rostype & in, uint32_t* pFrameId= nullptr, int64_t* pTimestamp= nullptr)
   {
     cpptype out;
-    sc::CanDataFromROS(in, pSource, pTimestamp);
+    sc::CanDataFromROS(in, pFrameId, pTimestamp);
     out.Mode = static_cast<gps::EPositionMode>(in.mode);
     out.State = static_cast<gps::ECorrectionState>(in.state);
     out.VelocitySolutionSatellites = in.velocity_solution_satellites;
@@ -367,10 +367,10 @@ struct SatellitesUsed
     return out;
   }
 
-  static inline cpptype FromROS(const rostype & in, uint8_t* pSource= nullptr, int64_t* pTimestamp= nullptr)
+  static inline cpptype FromROS(const rostype & in, uint32_t* pFrameId= nullptr, int64_t* pTimestamp= nullptr)
   {
     cpptype out;
-    sc::CanDataFromROS(in, pSource, pTimestamp);
+    sc::CanDataFromROS(in, pFrameId, pTimestamp);
     out.SatellitesMask = in.satellites_mask;
     out.LatitudeEx = in.latitude_ex_deg;
     out.LongitudeEx = in.longitude_ex_deg;
@@ -397,10 +397,10 @@ struct ReceiverInfo
     return out;
   }
 
-  static inline cpptype FromROS(const rostype & in, uint8_t* pSource= nullptr, int64_t* pTimestamp= nullptr)
+  static inline cpptype FromROS(const rostype & in, uint32_t* pFrameId= nullptr, int64_t* pTimestamp= nullptr)
   {
     cpptype out;
-    sc::CanDataFromROS(in, pSource, pTimestamp);
+    sc::CanDataFromROS(in, pFrameId, pTimestamp);
     out.LicenseDays = in.license_days;
     out.HardwareVersion = in.hardware_version;
     out.SoftwareVersion = in.software_version;
@@ -432,10 +432,10 @@ struct HeadingMode
     return out;
   }
 
-  static inline cpptype FromROS(const rostype & in, uint8_t* pSource= nullptr, int64_t* pTimestamp= nullptr)
+  static inline cpptype FromROS(const rostype & in, uint32_t* pFrameId= nullptr, int64_t* pTimestamp= nullptr)
   {
     cpptype out;
-    sc::CanDataFromROS(in, pSource, pTimestamp);
+    sc::CanDataFromROS(in, pFrameId, pTimestamp);
     out.Heading = in.heading_deg;
     out.NavigationMode = static_cast<gps::EDifferentialSource>(in.navigation_mode);
     out.NavigationLocked = static_cast<ELocked>(in.navigation_locked);
@@ -468,10 +468,10 @@ struct MachineSelectedSpeed
     return out;
   }
 
-  static inline cpptype FromROS(const rostype & in, uint8_t* pSource= nullptr, int64_t* pTimestamp= nullptr)
+  static inline cpptype FromROS(const rostype & in, uint32_t* pFrameId= nullptr, int64_t* pTimestamp= nullptr)
   {
     cpptype out;
-    sc::CanDataFromROS(in, pSource, pTimestamp);
+    sc::CanDataFromROS(in, pFrameId, pTimestamp);
     out.Direction = static_cast<EDirection>(in.direction);
     out.Distance = in.distance_m;
     out.ExitCode = in.exit_code;
@@ -502,10 +502,10 @@ struct WheelBasedSpeedAndDistance
     return out;
   }
 
-  static inline cpptype FromROS(const rostype & in, uint8_t* pSource= nullptr, int64_t* pTimestamp= nullptr)
+  static inline cpptype FromROS(const rostype & in, uint32_t* pFrameId= nullptr, int64_t* pTimestamp= nullptr)
   {
     cpptype out;
-    sc::CanDataFromROS(in, pSource, pTimestamp);
+    sc::CanDataFromROS(in, pFrameId, pTimestamp);
     out.Distance = in.distance_m;
     out.KeySwitch = static_cast<EOnOff>(in.key_switch);
     out.MachineDirection = static_cast<EDirection>(in.machine_direction);
@@ -529,7 +529,7 @@ struct GpsEpoch
   static inline rostype ToROS(const cpptype & in)
   {
     rostype out;
-    out.can_data.source = in.Source;
+    out.can_data.frame_id = in.Source;
     out.can_data.timestamp = in.Timestamp;
     out.latitude = in.Position.Lat;
     out.longitude = in.Position.Lon;
@@ -555,7 +555,7 @@ struct GpsEpoch
   {
     cpptype out;
     out.Timestamp = in.can_data.timestamp;
-    out.Source = in.can_data.source;
+    out.Source = sc::GetSourceAddrFromFrameId(in.can_data.frame_id);
     out.Position.Lat = in.latitude;
     out.Position.Lon = in.longitude;
     out.Position.Elevation = in.elevation_m;
@@ -587,7 +587,7 @@ struct GpsDevice
   static inline rostype ToROS(const cpptype & in)
   {
     rostype out;
-    out.can_data.source = in.Source;
+    out.can_data.frame_id = in.Source;
     out.can_data.timestamp = 0;
     out.diff_source = static_cast<uint8_t>(in.DiffSource);
     out.sf_active = static_cast<uint8_t>(in.SFActive);
@@ -613,7 +613,7 @@ struct GpsDevice
   {
     cpptype out;
 
-    out.Source = in.can_data.source;
+    out.Source = sc::GetSourceAddrFromFrameId(in.can_data.frame_id);
     //out.can_data.timestamp = 0;
     out.DiffSource = static_cast<gps::EDifferentialSource>(in.diff_source);
     out.SFActive = static_cast<EActive>(in.sf_active);
@@ -646,7 +646,7 @@ struct GpsEx
   static inline rostype ToROS(const cpptype & in)
   {
     rostype out;
-    out.can_data.source = in.Source;
+    out.can_data.frame_id = in.Source;
     out.can_data.timestamp = in.Timestamp;
 
     out.navigation_locked = static_cast<uint8_t>(in.NavigationLocked);
@@ -699,7 +699,7 @@ struct GpsEx
     out.SolutionStatus = static_cast<gps::ESolutionStatus>(in.solution_status);
     out.LowSpeedCapable = static_cast<EActive>(in.low_speed_capable);
     out.SerialNumber = in.serial_number;
-    out.Source = in.can_data.source;
+    out.Source = sc::GetSourceAddrFromFrameId(in.can_data.frame_id);
     out.Timestamp = in.can_data.timestamp;
     return out;
   }
@@ -719,10 +719,10 @@ struct xxxxx
     return out;
   }
 
-  static inline cpptype FromROS(const rostype & in, uint8_t* pSource= nullptr, int64_t* pTimestamp= nullptr)
+  static inline cpptype FromROS(const rostype & in, uint32_t* pFrameId= nullptr, int64_t* pTimestamp= nullptr)
   {
     cpptype out;
-    sc::CanDataFromROS(in, pSource, pTimestamp);
+    sc::CanDataFromROS(in, pFrameId, pTimestamp);
     out = static_cast<xxxx>(in);
     return out;
   }

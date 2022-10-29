@@ -64,11 +64,14 @@ private:
 	auto publisher = Node->create_publisher<typename T::rostype>(T::topic, 10);//TODO What QoS do we need?
 	return [publisher](const sc::CanMessage_t& msg){
 		auto rosMsg = T::ToROS(T::cantype::FromCAN(sc::ToCANMsgType(msg)));
-		rosMsg.can_data.source = msg.FrameId & 0xFF;
+		rosMsg.can_data.frame_id = msg.FrameId;
 		rosMsg.can_data.timestamp = msg.Timestamp;
 		publisher->publish(rosMsg);
 	};
   }
+
+  ForwarderFn MakeGenericForwarder(const char* topic);
+
   static bool Matches(const Subscription_t & subscription, const sc::CanMessage_t & msg);
 
   void Send(const sc::CanMessage_t& out);
@@ -111,6 +114,13 @@ public:
     return Register2Cmd(channel, T::cantype::PGN, T::cantype::CMD1, T::cantype::CMD2, address, MakeForwarder<T>());
   }
 
+  //Generic message registration
+  Subscription_t GenericRegister(uint8_t channel, int32_t pgn, uint64_t mask, uint64_t match, uint8_t address, const char* topic);
+  Subscription_t GenericRegister(uint8_t channel, int32_t pgn, uint8_t address, const char* topic);
+  Subscription_t GenericRegister1Cmd(uint8_t channel, int32_t pgn, uint8_t cmdByte, uint8_t address, const char* topic);
+  Subscription_t GenericRegister2Cmd(uint8_t channel, int32_t pgn, uint8_t cmdByte1, uint8_t cmdByte2, uint8_t address, const char* topic);
+
+
   template<typename T> std::shared_ptr<rclcpp::SubscriptionBase> BridgeGlobal(uint8_t bus)
   {
 	auto bridge = Node->create_subscription<typename T::rostype>(T::topic, 10, [&,bus](const std::shared_ptr<typename T::rostype> msg){
@@ -122,12 +132,12 @@ public:
 	return bridge;
   }
 
-  template<typename T> std::shared_ptr<rclcpp::SubscriptionBase> Bridge(uint8_t bus, bool global)
+  template<typename T> std::shared_ptr<rclcpp::SubscriptionBase> Bridge(uint8_t bus)
   {
-	auto bridge = Node->create_subscription<typename T::rostype>(T::topic, 10, [&,bus,global](const std::shared_ptr<typename T::rostype> msg){
+	auto bridge = Node->create_subscription<typename T::rostype>(T::topic, 10, [&,bus](const std::shared_ptr<typename T::rostype> msg){
 		auto cppMsg = T::FromROS(*msg, nullptr, nullptr);
 		auto canMsg = T::cantype::ToCAN(cppMsg);
-		Send(canMsg, bus, msg.destination_addr, false);
+		Send(canMsg, bus, msg->destination_addr, false);
 	});
 	Bridges.emplace_back(bridge);
 	return bridge;
