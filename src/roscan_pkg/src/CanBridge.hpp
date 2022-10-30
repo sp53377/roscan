@@ -5,6 +5,7 @@
 #pragma once
 
 #include "can_interfaces/srv/register_msg.hpp"
+#include "can_interfaces/msg/generic_msg.hpp"
 #include "rclcpp/rclcpp.hpp"
 #include <CANFactory/CanMessage.h>
 #include <CANFactory/CANTypes.h>
@@ -90,6 +91,7 @@ private:
 		Send(out);
 	}
   }
+
 public:
   static constexpr uint32_t INVALID_HANDLE = 0;
 
@@ -142,6 +144,8 @@ public:
 	Bridges.emplace_back(bridge);
 	return bridge;
   }
+
+  std::shared_ptr<rclcpp::SubscriptionBase> AddGenericBridge(uint8_t bus);
 
   void Step();
 };

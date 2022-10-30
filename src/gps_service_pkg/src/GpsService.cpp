@@ -6,6 +6,7 @@
 #include "GpsServiceROS.h"
 #include <GpsService/GpsMessages.h>
 #include <CANFactory/CANTypes.h>
+#include <CANFactory/GenericFactory.hpp>
 #include <iostream>
 
 using namespace gps;
@@ -17,8 +18,12 @@ GpsService::GpsService(std::shared_ptr<rclcpp::Node> & node)
 {
   EpochPublisher = Node->create_publisher<bridge::GpsEpoch::rostype>(bridge::GpsEpoch::topic, 10);
   ExPublisher = Node->create_publisher<bridge::GpsEx::rostype>(bridge::GpsEx::topic, 10);
-  DevicePublisher = Node->create_publisher<bridge::GpsDevice::rostype>(bridge::GpsDevice::topic, 10);
-  PgnReqPublisher = Node->create_publisher<bridge::GlobalPgnRequest::rostype>(bridge::GlobalPgnRequest::topic, 10);
+  DevicePublisher =
+    Node->create_publisher<bridge::GpsDevice::rostype>(bridge::GpsDevice::topic, 10);
+  PgnReqPublisher = Node->create_publisher<bridge::GlobalPgnRequest::rostype>(
+    bridge::GlobalPgnRequest::topic, 10);
+  GenericPublisher = Node->create_publisher<can_interfaces::msg::GenericMsg>(
+    sc::SendGenericMsg::topic, 10);
 }
 
 GpsService::~GpsService()
@@ -65,8 +70,13 @@ void GpsService::HandleEpochReceived(const int64_t & timestamp)
     }
   }
 
-  if (actual >= expected) {
+  uint8_t data[8] = {0, 1, 2, 3, 4, 5, 6, 7};
+  data[0] = expected;
+  data[1] = actual;
+  auto msg = sc::MakeGeneric(data, 8, 0x1200, 1, 7, 0x34);
+  GenericPublisher->publish(msg);
 
+  if (actual >= expected) {
     //TODO static const hash_t topic = fps::ToHash(topics::gps_AllEpochsReceived::Topic);
     //TODO fps::Publish(topic, timestamp);
   }

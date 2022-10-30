@@ -7,6 +7,7 @@
 
 #include "GpsModel.h"
 #include <CANFactory/CanMessageBridges.hpp>
+#include <CANFactory/GenericFactory.hpp>
 #include <GpsService/GpsServiceBridges.hpp>
 #include "rclcpp/rclcpp.hpp"
 #include <CommonCore/CommonTypes.h>
@@ -60,5 +61,6 @@ namespace gps
       rclcpp::Publisher<bridge::GpsEx::rostype>::SharedPtr ExPublisher;
       rclcpp::Publisher<bridge::GpsDevice::rostype>::SharedPtr DevicePublisher;
       rclcpp::Publisher<bridge::GlobalPgnRequest::rostype>::SharedPtr PgnReqPublisher;
+      rclcpp::Publisher<can_interfaces::msg::GenericMsg>::SharedPtr GenericPublisher;
    };
 }

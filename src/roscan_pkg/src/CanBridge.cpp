@@ -3,8 +3,8 @@
 // please see COPYRIGHT file in root of source repository.
 ///////////////////////////////////////////////////////////////////////////////
 #include "CanBridge.hpp"
-#include <can_interfaces/msg/generic_msg.hpp>
 #include <CANFactory/CANTypes.h>
+#include <CANFactory/GenericFactory.hpp>
 #include <CANFactory/CanQueues.hpp>
 #include <chrono>
 using namespace std::chrono_literals;
@@ -29,7 +29,7 @@ std::shared_ptr<message_queue> CanBridge::MakeRxQueue()
     RCLCPP_ERROR(
       rclcpp::get_logger(
         "rclcpp"), "Couldn't connect to canbus rx queue retrying...");
-      std::cerr << e.what() << '\n';
+    std::cerr << e.what() << '\n';
   }
   return queue;
 }
@@ -90,7 +90,7 @@ void CanBridge::Step()
 
 CanBridge::Subscription_t CanBridge::Register(
   uint8_t channel, int32_t pgn, uint64_t mask,
-  uint64_t match, uint8_t address, const ForwarderFn& fn)
+  uint64_t match, uint8_t address, const ForwarderFn & fn)
 {
   Subscription_t subscription;
   subscription.Channel = channel;
@@ -116,14 +116,16 @@ CanBridge::Subscription_t CanBridge::Register(
   return subscription;
 }
 
-CanBridge::Subscription_t CanBridge::Register(uint8_t channel, int32_t pgn, uint8_t address, const ForwarderFn& fn)
+CanBridge::Subscription_t CanBridge::Register(
+  uint8_t channel, int32_t pgn, uint8_t address,
+  const ForwarderFn & fn)
 {
   return Register(channel, pgn, 0, 0, address, fn);
 }
 
 CanBridge::Subscription_t CanBridge::Register1Cmd(
   uint8_t channel, int32_t pgn, uint8_t cmdByte,
-  uint8_t address, const ForwarderFn& fn)
+  uint8_t address, const ForwarderFn & fn)
 {
   uint64_t mask = 0xFF;
   uint64_t match = cmdByte;
@@ -132,44 +134,55 @@ CanBridge::Subscription_t CanBridge::Register1Cmd(
 
 CanBridge::Subscription_t CanBridge::Register2Cmd(
   uint8_t channel, int32_t pgn, uint8_t cmdByte1, uint8_t cmdByte2,
-  uint8_t address, const ForwarderFn& fn)
+  uint8_t address, const ForwarderFn & fn)
 {
   uint64_t mask = 0xFFFF;
   uint64_t match = (cmdByte2 << 8) | cmdByte1;
   return Register(channel, pgn, mask, match, address, fn);
 }
 
-CanBridge::ForwarderFn CanBridge::MakeGenericForwarder(const char* topic)
+CanBridge::ForwarderFn CanBridge::MakeGenericForwarder(const char * topic)
 {
-	auto publisher = Node->create_publisher<can_interfaces::msg::GenericMsg>(topic, 10);//TODO What QoS do we need?
-	return [publisher](const sc::CanMessage_t& msg){
-		can_interfaces::msg::GenericMsg rosMsg;
-		rosMsg.can_data.frame_id = msg.FrameId;
-		rosMsg.can_data.timestamp = msg.Timestamp;
-		rosMsg.length = msg.Length;
-		memcpy(rosMsg.data.data(), msg.Bytes, msg.Length);
-		publisher->publish(rosMsg);
-	};
+  auto publisher = Node->create_publisher<can_interfaces::msg::GenericMsg>(topic, 10);      //TODO What QoS do we need?
+  return [publisher](const sc::CanMessage_t & msg) {
+           can_interfaces::msg::GenericMsg rosMsg;
+           rosMsg.can_data.frame_id = msg.FrameId;
+           rosMsg.can_data.timestamp = msg.Timestamp;
+           rosMsg.length = msg.Length;
+           memcpy(rosMsg.data.data(), msg.Bytes, msg.Length);
+           publisher->publish(rosMsg);
+         };
 }
 
-CanBridge::Subscription_t CanBridge::GenericRegister(uint8_t channel, int32_t pgn, uint64_t mask, uint64_t match, uint8_t address, const char* topic)
+CanBridge::Subscription_t CanBridge::GenericRegister(
+  uint8_t channel, int32_t pgn, uint64_t mask,
+  uint64_t match, uint8_t address,
+  const char * topic)
 {
-	return Register(channel, pgn, mask, match, address, MakeGenericForwarder(topic));
+  return Register(channel, pgn, mask, match, address, MakeGenericForwarder(topic));
 }
 
-CanBridge::Subscription_t CanBridge::GenericRegister(uint8_t channel, int32_t pgn, uint8_t address, const char* topic)
+CanBridge::Subscription_t CanBridge::GenericRegister(
+  uint8_t channel, int32_t pgn, uint8_t address,
+  const char * topic)
 {
-	return Register(channel, pgn, address, MakeGenericForwarder(topic));
+  return Register(channel, pgn, address, MakeGenericForwarder(topic));
 }
 
-CanBridge::Subscription_t CanBridge::GenericRegister1Cmd(uint8_t channel, int32_t pgn, uint8_t cmdByte, uint8_t address, const char* topic)
+CanBridge::Subscription_t CanBridge::GenericRegister1Cmd(
+  uint8_t channel, int32_t pgn,
+  uint8_t cmdByte, uint8_t address,
+  const char * topic)
 {
-	return Register1Cmd(channel, pgn, cmdByte, address, MakeGenericForwarder(topic));
+  return Register1Cmd(channel, pgn, cmdByte, address, MakeGenericForwarder(topic));
 }
 
-CanBridge::Subscription_t CanBridge::GenericRegister2Cmd(uint8_t channel, int32_t pgn, uint8_t cmdByte1, uint8_t cmdByte2, uint8_t address, const char* topic)
+CanBridge::Subscription_t CanBridge::GenericRegister2Cmd(
+  uint8_t channel, int32_t pgn,
+  uint8_t cmdByte1, uint8_t cmdByte2,
+  uint8_t address, const char * topic)
 {
-	return Register2Cmd(channel, pgn, cmdByte1, cmdByte2, address, MakeGenericForwarder(topic));
+  return Register2Cmd(channel, pgn, cmdByte1, cmdByte2, address, MakeGenericForwarder(topic));
 }
 
 bool CanBridge::Matches(const Subscription_t & subscription, const sc::CanMessage_t & msg)
@@ -181,7 +194,7 @@ bool CanBridge::Matches(const Subscription_t & subscription, const sc::CanMessag
 
 void CanBridge::HandleMessage(const sc::CanMessage_t & msg)
 {
-  uint32_t maskedPgn = (msg.FrameId & PGN_MASK)>>8;
+  uint32_t maskedPgn = (msg.FrameId & PGN_MASK) >> 8;
   auto range = Subscriptions.equal_range(maskedPgn);
   for (auto it = range.first; it != range.second; ++it) {
     if (Matches(it->second, msg)) {
@@ -190,9 +203,26 @@ void CanBridge::HandleMessage(const sc::CanMessage_t & msg)
   }
 }
 
-void CanBridge::Send(const sc::CanMessage_t& out)
+void CanBridge::Send(const sc::CanMessage_t & out)
 {
-    if (!TxQueue->try_send(&out, sizeof(sc::CanMessage_t), 0)) {
-      std::cout << "CAN Send Failed" << std::endl;
-    }
+  if (!TxQueue->try_send(&out, sizeof(sc::CanMessage_t), 0)) {
+    std::cout << "CAN Send Failed" << std::endl;
+  }
+}
+
+std::shared_ptr<rclcpp::SubscriptionBase> CanBridge::AddGenericBridge(uint8_t bus)
+{
+  auto bridge = Node->create_subscription<can_interfaces::msg::GenericMsg>(
+    sc::SendGenericMsg::topic, 10,
+    [&, bus](const std::shared_ptr<can_interfaces::msg::GenericMsg> msg) {
+      sc::CanMessage_t out;
+      memcpy(out.Bytes, msg->data.data(), 8);
+      out.Channel = msg->bus;
+      out.FrameId = (msg->can_data.frame_id & 0xFFFFFF00) | SourceAddress;
+      out.Timestamp = 0;
+      out.Length = msg->length;
+      Send(out);
+    });
+  Bridges.emplace_back(bridge);
+  return bridge;
 }
