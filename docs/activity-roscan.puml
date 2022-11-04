@@ -1,0 +1,56 @@
+@startuml
+title ROSCAN Activity Diagram
+start
+fork
+:Launch roscan_node;
+:Attach to Rx/Tx queues;
+:Register CAN Msgs;
+:Create Subscription [with masks];
+:RegisterMsg.svc Request;
+:Make CAN2ROS Forwarder [lambda];
+while(forever)
+	if(try_receive) then
+		:HandleMessage;
+		:Call Forwarder [lambda];
+		:ToCANMsgType:canmsg;
+		:FromCAN:cpptype;
+		:ToROS:rostype;
+		:Publish(rostype);
+	endif
+	:spin_some;
+endwhile
+fork again
+:Launch gps_service_node;
+:Subscribe to ROS GPS messages;
+while(forever)
+	:HandleMessage;
+	if(new Device) then
+		:Add GpsModel;
+	endif
+	:UpdateModel;
+	if(EpochComplete) then
+		:Publish GpsEpoch;
+		:Publish GpsEx;
+	endif
+	:spin_some;
+endwhile
+fork again
+:Launch canplay_node;
+:Create to Rx/Tx queues;
+:Open Can Log;
+while(more lines)
+	:Handle RegisterMsg.svc Request;
+	:TryRecieve;
+	:ProcessLog;
+	:ProcessLine;
+	if(MessageRegistered) then
+		:Publish(msg);
+	endif
+	while(more outgoing)
+		:Send(msg);
+	endwhile
+	:spin_some;
+endwhile
+end fork
+stop
+@enduml

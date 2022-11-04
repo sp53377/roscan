@@ -1,0 +1,21 @@
+@startuml
+title ROSCAN Activity Diagram
+component roscan <<node>>
+component gps_service <<node>>
+component canplay <<node>>
+component application <<node>>
+artifact canlog <<log>>
+component console
+
+canplay-->canplay : 0)Create Tx/Rx\nQueues\n<<boost>>
+roscan<-->canplay : 1) RegisterMsg(s)\n<<ROS Svc>>
+gps_service-l->gps_service : 2) Subscribe to\nGPS Msgs\n<<ROS Sub>>
+canlog-->canplay : 3) Parse Line\n<<CAN Recv>>
+canplay-->roscan : 4) Push Msg\n<<Rx Queue>>
+roscan-->roscan : 5,9) Bridge Msg\n<<CAN2ROS/ROS2CAN>>
+roscan-->gps_service : 6) Forward Msg\n<<ROS Pub>>
+gps_service-->application : 7) Publish GpsEpoch\n<<ROS Pub>>
+application-->roscan : 8) Send Msg\n<<ROS Pub>>
+roscan-->canplay : 10) Push Msg\n<<Tx Queue>>
+canplay-->console : 11) Print Msg\n<<CAN Send>>
+@enduml

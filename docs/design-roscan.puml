@@ -1,0 +1,124 @@
+@startuml
+title ROSCAN Workspace Components
+package ROSCAN <<workspace>>{
+
+left to right direction
+'top to bottom direction
+
+package includes{
+	package CANFactory {
+		object CanMessage.h {
+			Channel : int8_t
+			FrameId : uint32_t
+			Length : int8_t
+			Timestamp : int64_t
+			Bytes : uint8_t[8]
+		}
+		note bottom
+			Generic CAN Message
+			struct that is sent
+			through the in/out queues
+		endnote
+		
+		object CanMessageBridges.hpp {
+			* CAN Related Message Bridge Defs
+		}
+		
+		object CanQueues.hpp {
+			* Message Queue Defintions
+		}
+
+		object CANTypes.h {
+			* CAN Frame Data Access Fns
+			* CAN data structures
+		}
+	}
+
+	package GpsService {		
+		object GpsMessages.h {
+			* AE Can message defs
+		}
+
+		object GpsServiceBridges.hpp {
+			* CAN2ROS bridge defs
+		}
+
+		object GpsTypes.h {
+			* AE GpsEpoch struct
+			* AE GpsEx struct
+			* AE GpsDevice struct
+		}
+	}
+}
+
+package can_interfaces[
+CAN ROS Messages
+* xxxxx.msg - GPS msgs
+* CanData.msg - generic CAN msg
+* PgnRequest.msg - PGN Request
+* RegisterMsg.srv - A service for can filtering reqs
+]
+
+package roscan_pkg{
+	class CanBridge {
+		* Register - request "Typed" CAN->ROS messages
+		* GenericRegister - request "Generic" CAN->ROS messages
+		* Bridge - bridge from ROS -> CAN forwading
+	}
+
+	object roscan_node {
+		* Registers for typed bridge messages
+		* rosnode event loop
+	}
+}
+
+package canplay_pkg{
+	class "rclcpp::Node" as Node {
+	}
+	class CanNode {
+	* Register CAN Subscriptions 
+	* Handle RegisterMsg Req/Resp
+	* Processes Rx/Tx Queues [Receive/Transmit]
+	}
+	class CanPlayer {
+	}
+	interface ICanSource {
+		bool TryReceive(bool& isValidOut, MessageInstance_t& messageOut)
+		bool Send(sc::CanMessage_t& msg)
+	}
+	object ProcessingFns {
+	  Fns for reading can log
+	}
+	CanNode-->Node : Node
+	CanNode-->ICanSource : Source
+	CanPlayer-u-|>ICanSource
+	CanPlayer..>ProcessingFns : Uses
+}
+
+package gps_service_pkg{
+	class DirectionCoordinator {
+		* Filter various direction sources
+	}
+
+	class GpsModel {
+		* Group GPS Events
+		* Combine separate CAN messages into single GPS Epochs		
+	}
+
+	class GpsService {
+		* Manage collection of receivers [GpsModels]
+	}
+
+	class GpsServiceROS {
+		* Registers for bridged ROS messages
+		* Forwards messages to GpsService
+	}
+}
+note bottom
+	Port of AE GpsService
+	* Subscribes to ROS GPS messages (instead of CAN)
+	* Publishes GpsEpoch, GpsEx, and GpsDevic on ROS (instead of FPS)
+endnote
+}
+
+@enduml

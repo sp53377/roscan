@@ -18,7 +18,7 @@ The following features are included:
 
 The following sequence shows how messages flow throught this system
 
-![Architecture](components-roscan.png)
+![Architecture](./docs/Diagrams/components-roscan.png)
 
 1. CAN Player
    1. Read Log File Line
@@ -84,4 +84,107 @@ This workspace is based on a Docker container that I found here:
 1. Run the roscan_node `canrun.sh`
 2. Run the gps_service_node `gpsrun.sh`
 3. Run the can player `playerrun.sh`
-4. Watch gps epochs with `echo.sh GpsEpoch`
+4. Watch gps epochs with `echo.sh /gps/GpsEpoch`
+
+# Adding CAN Messages to RosCan Bridge
+Use the following steps to add new messages to the ROS CAN Bridge
+1. Add native (cpptype) and CAN (cantype) structs header file (in AE style)
+* See /roscan/include/GpsService/GpsMessages.h
+* Code Example:
+```
+  //Native (cpptype)
+  struct VehiclePosition {
+    lat64_t Latitude = 0.0;
+    lon64_t Longitude = 0.0;
+  };
+  
+  //CAN (cantype)
+  struct CANVehiclePosition
+  {
+     enum { PGN = 0xFEF3 };
+     enum { PRIORITY = 6 };
+     uint32_t Latitude : 32;
+     uint32_t Longitude : 32;    
+  
+     //cantype->cpptype
+     static inline VehiclePosition FromCAN(const sc::CANMsg& msg){
+        const auto& in = sc::ToMsg<CANVehiclePosition>(msg);
+        VehiclePosition out;
+        //Scale float parameters
+        out.Latitude = cc::ScaledNoNaN64(in.Latitude, 0.0000001, 210.0);
+        out.Longitude = cc::ScaledNoNaN64(in.Longitude, 0.0000001, 210.0);
+        return out;
+     }    
+  
+     //cpptype->cantype
+     static inline CANVehiclePosition ToCAN(const VehiclePosition& in){
+        CANVehiclePosition msg;
+        //Un-Scale float parameters
+        msg.Latitude = cc::UnscaledNoNaN64<uint32_t>(in.Latitude, 0.0000001, 210.0);
+        msg.Longitude = cc::UnscaledNoNaN64<uint32_t>(in.Longitude, 0.0000001, 210.0);
+        return msg;
+     }    
+  };//__attribute__((packed)); If packing is needed
+  //Guarantee message is 8-bytes (May need packing)
+  ASSERT_EIGHT(CANVehiclePosition);
+```
+
+2. Create ROS msg files in can_interface to generate (rostypes)
+* Add msg to /roscan/src/can_interfaces/msg/xxxxxx.msg
+* Add .msg file to rosidl_generate_interfaces in CMakeLists.txt
+
+3. Add a bridge struct to map between ROS (rostype) and native (cpptype)
+* See /roscan/include/GpsService/GpsServiceBridges.hpp
+
+```
+#include <GpsService/GpsMessages.h>   //Include native/can message structs
+...
+#include <can_interfaces/msg/vehicle_position.hpp> //include ROS Generated message
+
+//The bridge namespace
+namespace bridge {
+//The bridge definition struct
+struct VehiclePosition{
+  using cantype = gps::CANVehiclePosition; 			//The CAN message struct type
+  using cpptype = gps::VehiclePosition;   			//The native CPP struct
+  using rostype = can_interfaces::msg::VehiclePosition;  	//The generated ROS type
+  static constexpr const char * topic = "/gps/VehiclePosition"; //The topic to publish ROS messages on
+
+  //Convert from cpptype->rostype
+  static inline rostype ToROS(const cpptype & in)
+  {
+    rostype out;
+    out.latitude = in.Latitude;
+    out.longitude = in.Longitude;
+    return out;
+  }
+
+  //Convert from rostype->cpptype
+  static inline cpptype FromROS(const rostype & in, uint32_t* pFrameId= nullptr, int64_t* pTimestamp= nullptr)
+  {
+    cpptype out;
+    //Parse out can frame and timestamp information
+    sc::CanDataFromROS(in, pFrameId, pTimestamp);
+    out.Latitude = in.latitude;
+    out.Longitude = in.longitude;
+    return out;
+  }
+};
+...
+```
+* Add rosbridge types to the bridges namespace
+* Provide definitions for: cantype, cpptype, and rostype
+* Provide a ROS topic string
+* Define ToROS function
+* Define FromROS function
+
+# Diagrams
+Various Arcthiecture / Design Diagrams
+## Components
+![Architecture](./docs/Diagrams/components-roscan.png)
+## High Level Activity
+![Architecture](./docs/Diagrams/activity-roscan-alternate.png)
+## Activity
+![Architecture](./docs/Diagrams/activity-roscan.png)
+## Design
+![Architecture](./docs/Diagrams/design-roscan.png)
