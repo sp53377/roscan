@@ -59,9 +59,10 @@ void GpsService::HandleEpochReceived(const int64_t & timestamp)
 {
   int expected = 0;
   int actual = 0;
+  LastUpdate = timestamp;
   for (auto & pair:Devices) {
     auto & model = pair.second;
-    int64_t dt = labs(model.LastEpochTimestamp() - timestamp);
+    int64_t dt = labs(LastUpdate - model.LastEpochTimestamp());
     if (dt < EPOCH_TIMEOUT) {//Is this receiver active
       expected++;
       if (dt < SYNC_WINDOW) {//Is this epoch recent
@@ -70,13 +71,19 @@ void GpsService::HandleEpochReceived(const int64_t & timestamp)
     }
   }
 
-  uint8_t data[8] = {0, 1, 2, 3, 4, 5, 6, 7};
-  data[0] = expected;
-  data[1] = actual;
-  auto msg = sc::MakeGeneric(data, 8, 0x1200, 1, 7, 0x34);
-  GenericPublisher->publish(msg);
+  if (actual >= expected) 
+  {
+	//We got all of the GPS Epochs from all of the receivers
 
-  if (actual >= expected) {
+	//Publish a sample generic message
+	//TODO remove this
+	  uint8_t data[8] = {0, 1, 2, 3, 4, 5, 6, 7};
+	  data[0] = expected;
+	  data[1] = actual;
+	  data[2] = Devices.size();
+	  auto msg = sc::MakeGeneric(data, 8, 0x1200, 1, 7, 0x34);
+	  GenericPublisher->publish(msg);
+
     //TODO static const hash_t topic = fps::ToHash(topics::gps_AllEpochsReceived::Topic);
     //TODO fps::Publish(topic, timestamp);
   }

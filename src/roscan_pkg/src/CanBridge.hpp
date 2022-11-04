@@ -67,6 +67,7 @@ private:
 		auto rosMsg = T::ToROS(T::cantype::FromCAN(sc::ToCANMsgType(msg)));
 		rosMsg.can_data.frame_id = msg.FrameId;
 		rosMsg.can_data.timestamp = msg.Timestamp;
+		//std::cout << "0x" << std::hex << (msg.FrameId & 0xFF) << std::dec << " " << msg.Timestamp << " " << T::topic << std::endl;
 		publisher->publish(rosMsg);
 	};
   }
@@ -145,7 +146,14 @@ public:
 	return bridge;
   }
 
-  std::shared_ptr<rclcpp::SubscriptionBase> AddGenericBridge(uint8_t bus);
+  enum EBusMasks
+  {
+	CAN1 = (1<<1),
+	CAN2 = (1<<2),
+	CAN3 = (1<<3),
+	CAN4 = (1<<4)
+  };
+  std::shared_ptr<rclcpp::SubscriptionBase> AddGenericBridge(uint8_t mask);
 
   void Step();
 };

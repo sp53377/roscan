@@ -210,18 +210,20 @@ void CanBridge::Send(const sc::CanMessage_t & out)
   }
 }
 
-std::shared_ptr<rclcpp::SubscriptionBase> CanBridge::AddGenericBridge(uint8_t bus)
+std::shared_ptr<rclcpp::SubscriptionBase> CanBridge::AddGenericBridge(uint8_t busMask)
 {
   auto bridge = Node->create_subscription<can_interfaces::msg::GenericMsg>(
     sc::SendGenericMsg::topic, 10,
-    [&, bus](const std::shared_ptr<can_interfaces::msg::GenericMsg> msg) {
-      sc::CanMessage_t out;
-      memcpy(out.Bytes, msg->data.data(), 8);
-      out.Channel = msg->bus;
-      out.FrameId = (msg->can_data.frame_id & 0xFFFFFF00) | SourceAddress;
-      out.Timestamp = 0;
-      out.Length = msg->length;
-      Send(out);
+    [&, busMask](const std::shared_ptr<can_interfaces::msg::GenericMsg> msg) {
+      if (busMask & (1<<msg->bus)) {
+        sc::CanMessage_t out;
+        memcpy(out.Bytes, msg->data.data(), 8);
+        out.Channel = msg->bus;
+        out.FrameId = (msg->can_data.frame_id & 0xFFFFFF00) | SourceAddress;
+        out.Timestamp = 0;
+        out.Length = msg->length;
+        Send(out);
+      }
     });
   Bridges.emplace_back(bridge);
   return bridge;

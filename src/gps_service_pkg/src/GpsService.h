@@ -57,6 +57,7 @@ namespace gps
       GpsServiceROS* CAN;
       ModelMap Devices;
       GpsModel NullModel;
+      int64_t LastUpdate = 0;
       rclcpp::Publisher<bridge::GpsEpoch::rostype>::SharedPtr EpochPublisher;
       rclcpp::Publisher<bridge::GpsEx::rostype>::SharedPtr ExPublisher;
       rclcpp::Publisher<bridge::GpsDevice::rostype>::SharedPtr DevicePublisher;

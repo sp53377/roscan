@@ -9,7 +9,7 @@
 
 namespace gps
 {
-   static constexpr const int64_t GPS_UPDATE_RATE = 200;
+   static constexpr const int64_t GPS_UPDATE_RATE = 150;
    static constexpr const int64_t SYNC_WINDOW = GPS_UPDATE_RATE * 3 / 8;//Time window that all epochs must reside in (75 ms)
    static constexpr const int64_t EPOCH_TIMEOUT = GPS_UPDATE_RATE + SYNC_WINDOW;
 

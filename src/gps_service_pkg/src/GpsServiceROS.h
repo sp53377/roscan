@@ -38,6 +38,7 @@ namespace gps
 		int64_t timestamp;
 		const auto& cppMsg = T::FromROS(*msg, &frameId, &timestamp);
 		sc::node_t node = sc::GetSourceAddrFromFrameId(frameId);//TODO create a node index from a name table
+		//std::cout << (int)node << " : "<< T::topic << std::endl;
 		Service.Handle(node, cppMsg, timestamp);
 	});
 	Subscriptions.emplace_back(subscription);

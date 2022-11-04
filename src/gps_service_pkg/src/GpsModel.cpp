@@ -88,6 +88,7 @@ void GpsModel::Update(EMessageFlag flag, const ms64_t& timestamp)
    if(IsCompleteEpoch())
    {
       UpdateDevice();
+      //std::cout << std::hex << Device.Node << std::dec << " " << timestamp << std::endl;
       Epoch.Direction = Direction.Get(timestamp);
       Epoch.Timestamp = timestamp;
       Extended.Timestamp = timestamp;
